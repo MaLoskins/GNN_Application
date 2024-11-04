@@ -1,4 +1,4 @@
-// src/api.js
+// my-app/src/api.js
 import axios from 'axios';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
@@ -12,9 +12,9 @@ export const getRoot = async () => {
   }
 };
 
-export const processData = async (data) => {
+export const processData = async (data, config) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/process-data`, { data });
+    const response = await axios.post(`${API_BASE_URL}/process-data`, { data, config });
     return response.data;
   } catch (error) {
     throw error;
