@@ -1,0 +1,304 @@
+/* my-app/src/App.css */
+
+/* CSS Variables for Dark Mode */
+:root {
+  --background-color: #121212;
+  --primary-color: #1f1f1f;
+  --secondary-color: #1e1e1e;
+  --accent-color: #bb86fc;
+  --text-color: #ffffff;
+  --secondary-text-color: #bbbbbb;
+  --border-color: #333333;
+  --button-background: #bb86fc;
+  --button-hover: #985eff;
+  --modal-background: #1f1f1f;
+  --dropzone-border: #444444;
+  --dropzone-background: #1f1f1f;
+  --input-background: #2c2c2c;
+  --input-text-color: #ffffff;
+  --select-background: #2c2c2c;
+  --select-text-color: #ffffff;
+}
+
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  color: var(--accent-color);
+  margin-bottom: 30px;
+}
+
+/* Dropzone Styling */
+.dropzone {
+  border: 2px dashed var(--dropzone-border);
+  border-radius: 10px;
+  padding: 40px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  background-color: var(--dropzone-background);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dropzone:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--accent-color);
+}
+
+.dropzone p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--secondary-text-color);
+}
+
+/* Configuration Section */
+.config-section {
+  text-align: left;
+  max-width: 1200px; /* Increased max-width for wider screens */
+  margin: 0 auto 30px;
+  padding: 25px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.config-section h2 {
+  margin-top: 0;
+  color: var(--accent-color);
+}
+
+.config-section p {
+  color: var(--secondary-text-color);
+  line-height: 1.6;
+}
+
+/* Submit Button */
+.config-section button {
+  background-color: var(--button-background);
+  color: var(--text-color);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.config-section button:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-2px);
+}
+
+.config-section button:disabled {
+  background-color: #555555;
+  cursor: not-allowed;
+}
+
+/* React Flow Wrapper */
+.react-flow-wrapper {
+  height: 700px; /* Increased height for better visibility */
+  width: 100%; /* Full width */
+  max-width: none; /* Removed max-width to allow full stretch */
+  margin: 0 auto 30px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Graph Visualization Section */
+.graph-section {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.graph-section h2 {
+  color: var(--accent-color);
+  margin-bottom: 20px;
+}
+
+.graph-container {
+  width: 100%;
+  max-width: 1800px; /* Increased max-width for wider screens */
+  margin: 0 auto;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 3 / 2; /* Ensures a 3:2 aspect ratio */
+}
+
+/* ForceGraph2D Styling */
+.graph-section canvas {
+  background-color: var(--primary-color) !important;
+}
+
+/* Modal Styling */
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  background-color: var(--modal-background);
+  padding: 30px;
+  border-radius: 10px;
+  width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  color: var(--text-color);
+  z-index: 1000; /* Ensures modal is on top */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 999; /* Slightly below modal */
+}
+
+/* Modal Headings */
+.modal h2 {
+  margin-top: 0;
+  color: var(--accent-color);
+}
+
+/* Modal Form Styling */
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal label {
+  margin-bottom: 15px;
+  text-align: left;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.modal input[type="text"],
+.modal select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background-color: var(--input-background);
+  color: var(--input-text-color);
+  transition: border-color 0.3s;
+}
+
+.modal input[type="text"]:focus,
+.modal select:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+/* Modal Buttons */
+.modal .modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modal .modal-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.modal .modal-buttons button:first-child {
+  background-color: #2ecc71; /* Save Button - Green */ 
+  color: #ffffff;
+}
+
+.modal .modal-buttons button:first-child:hover {
+  background-color: #2ecc71;
+  transform: translateY(-2px);
+}
+
+.modal .modal-buttons button:last-child {
+  background-color: #e74c3c; /* Cancel Button - Red */
+  color: #ffffff;
+}
+
+.modal .modal-buttons button:last-child:hover {
+  background-color: #e74c3c;
+  transform: translateY(-2px);
+}
+
+/* React Flow Node Styling */
+.react-flow__node-default {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.react-flow__node-default:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+/* React Flow Edge Styling */
+.react-flow__edge-path {
+  stroke: var(--accent-color);
+  stroke-width: 2px;
+}
+
+.react-flow__edge-arrowhead {
+  fill: var(--accent-color);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .config-section,
+  .graph-container {
+    max-width: 1000px; /* Adjust max-width for medium screens */
+  }
+}
+
+@media (max-width: 992px) {
+  .config-section,
+  .graph-container {
+    max-width: 800px; /* Adjust max-width for smaller screens */
+  }
+
+  .react-flow-wrapper {
+    height: 500px; /* Reduce height for smaller screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .config-section,
+  .react-flow-wrapper,
+  .graph-container {
+    max-width: 100%;
+    padding: 15px;
+  }
+
+  .modal {
+    width: 90%;
+  }
+}

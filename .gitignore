@@ -1,0 +1,32 @@
+# Node.js dependencies
+my-app/node_modules/
+my-app/package-lock.json
+
+# Python bytecode and cache files
+my-app-backend/__pycache__/
+*.pyc
+
+# Virtual environment (if any)
+venv/
+.env
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# IDE/editor settings (common for VSCode, JetBrains IDEs, etc.)
+.vscode/
+.idea/
+
+# Graph data files (if they don't need to be version-controlled)
+my-app-backend/graph.graphml
+my-app-backend/graph.json
+my-app-backend/graph_edge_list.csv
+my-app-backend/graph_pyg_data.pt
+
+# Other sensitive files (adjust as necessary)
+my-app/.env
+my-app-backend/.env
