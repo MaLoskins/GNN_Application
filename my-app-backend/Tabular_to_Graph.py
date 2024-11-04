@@ -1,14 +1,11 @@
-import torch
 import pandas as pd
-import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-from typing import Dict, Any, List, Tuple, Optional, Callable
+from typing import Dict, Any, List, Tuple, Optional
 import logging
 import matplotlib.patches as mpatches
-from torch_geometric.data import Data as PyGData
-from transformers import BertModel, BertTokenizer
-from sklearn.preprocessing import StandardScaler
+import matplotlib.cm as cm
+import matplotlib.colors as colors
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -116,26 +113,23 @@ class DataFrameToGraph:
                 self._add_edge(source_id_str, target_id_str, relationship_type, features)
 
     def _extract_features(self, row: pd.Series, feature_cols: List[str]) -> Dict[str, Any]:
-            features = {}
-            for feat in feature_cols:
-                if feat in row:
-                    value = row[feat]
-                    # Ensure that each feature is a single value
-                    if isinstance(value, list):
-                        features[feat] = len(value)  # Or some other consistent representation
-                    elif pd.isnull(value):
-                        logger.info(f"Feature '{feat}' not found in row. Assigning default value.")
-                        features[feat] = 0.0
-                    else:
-                        try:
-                            features[feat] = float(value)
-                        except ValueError:
-                            features[feat] = 0.0
-                else:
+        """Extracts feature data from the row based on specified columns."""
+        features = {}
+        for feat in feature_cols:
+            if feat in row:
+                value = row[feat]
+                if isinstance(value, list):
+                    # Assume the list is present and valid
+                    features[feat] = value
+                elif pd.isnull(value):
                     logger.info(f"Feature '{feat}' is missing in row. Assigning default value.")
-                    features[feat] = 0.0
-            return features
-
+                    features[feat] = ""
+                else:
+                    features[feat] = value
+            else:
+                logger.info(f"Feature '{feat}' not found in row. Assigning default value.")
+                features[feat] = ""
+        return features
 
     def _add_node(self, node_id: str, node_type: str, features: Dict[str, Any]):
         """
@@ -242,7 +236,7 @@ class DataFrameToGraph:
         node_type_list = sorted(node_types)  # Sort for consistency
 
         # Assign colors to node types using a colormap
-        cmap_nodes = plt.get_cmap('tab10', len(node_type_list))  # Updated line
+        cmap_nodes = cm.get_cmap('tab10', len(node_type_list))
         node_type_color_map = {ntype: cmap_nodes(i) for i, ntype in enumerate(node_type_list)}
 
         # Assign colors to nodes based on their type
@@ -251,14 +245,14 @@ class DataFrameToGraph:
         # Define node sizes based on node degree
         degrees = dict(graph.degree())
         max_degree = max(degrees.values()) if degrees else 1
-        node_sizes = [30 + (degrees[node] / max_degree) * 70 for node in graph.nodes()]  # Scale sizes between 30 and 100
+        node_sizes = [30 + (degrees[node] / max_degree) * 70 for node in graph.nodes()]  # Scale sizes between 300 and 1000
 
         # Extract unique edge relationship types
         edge_types = set(data.get('type', 'default') for _, _, data in graph.edges(data=True))
         edge_type_list = sorted(edge_types)  # Sort for consistency
 
         # Assign colors to edge types using a colormap
-        cmap_edges = plt.get_cmap('Set2', len(edge_type_list))  # Updated line
+        cmap_edges = cm.get_cmap('Set2', len(edge_type_list))
         edge_type_color_map = {etype: cmap_edges(i) for i, etype in enumerate(edge_type_list)}
 
         # Assign colors to edges based on their type
@@ -301,7 +295,6 @@ class DataFrameToGraph:
 
         # Display the graph
         plt.show()
-
 
 def main():
 
@@ -371,48 +364,7 @@ def main():
     # Visualize the graph
     df_to_graph.graph_visual(graph)
 
-    # Visualization Code Ends Here
-    # --------------------------------
 
-    # GraphConverter Configuration
-    graph_converter_config = {
-        "text_features": {
-            "nodes": ["lang"],  # Specify which node features are textual
-            "edges": ["mentions", "hashtags"]  # Specify which edge features are textual
-        },
-        "numeric_features": {
-            "nodes": ["retweet_count", "favorite_count", "user_friends_count"],
-            "edges": ["retweet_count"]  # Example numeric edge feature
-        }
-    }
-
-    # Initialize the GraphConverter instance with updated method order
-    graph_converter = GraphConverter(
-        df_to_graph=df_to_graph,
-        config=graph_converter_config,
-        methods=[
-            'embed_text_features',
-            'embed_numeric_features',
-            'convert_to_torch_geometric'
-        ]
-    )
-
-    # Retrieve the PyTorch Geometric Data object
-    pyg_data = graph_converter.get_pyg_data()
-    print("\nPyTorch Geometric Data Object:")
-    print(pyg_data)
-
-    # Save the PyG Data object to disk
-    graph_converter.save_pyg_data('graph_pyg_data.pt')
-
-    # Optionally, load the PyG Data object from disk
-    # graph_converter.load_pyg_data('graph_pyg_data.pt')
-
-    # Access embeddings
-    embeddings = graph_converter.get_embeddings()
-    print("\nEmbeddings:")
-    for feature, embed in embeddings.items():
-        print(f"{feature}: {embed.shape}")
 
 if __name__ == "__main__":
     main()
