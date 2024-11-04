@@ -40,7 +40,7 @@ def process_data(model: DataModel):
         df = pd.DataFrame(model.data)
         config = model.config
         graph_type = config.get('graph_type', 'directed')  # Optional graph type
-        
+
         # Initialize DataFrameToGraph
         df_to_graph = DataFrameToGraph(df, config, graph_type=graph_type)
         graph = df_to_graph.get_graph()

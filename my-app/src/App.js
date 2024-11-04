@@ -1,19 +1,17 @@
 // my-app/src/App.js
 import React, { useState, useEffect } from 'react';
 import { processData } from './api';
-import Papa from 'papaparse';
-import { useDropzone } from 'react-dropzone';
-import ForceGraph2D from 'react-force-graph-2d';
-import ReactFlow, {
-  ReactFlowProvider,
-  addEdge,
-  useNodesState,
-  useEdgesState,
-} from 'react-flow-renderer';
-import Modal from 'react-modal';
+import ReactFlow, { 
+  ReactFlowProvider, 
+  addEdge, 
+  useNodesState, 
+  useEdgesState 
+} from 'react-flow-renderer'; // Correctly import ReactFlow as default
+import FileUploader from './components/FileUploader';
+import ConfigurationPanel from './components/ConfigurationPanel';
+import GraphVisualizer from './components/GraphVisualizer';
+import RelationshipModal from './components/RelationshipModal';
 import './App.css';
-
-Modal.setAppElement('#root'); // For accessibility
 
 function App() {
   const [csvData, setCsvData] = useState([]);
@@ -29,32 +27,14 @@ function App() {
   // Modal States
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [currentEdge, setCurrentEdge] = useState(null);
-  const [relationshipType, setRelationshipType] = useState('');
-  const [relationshipFeatures, setRelationshipFeatures] = useState([]);
 
   // Handle file drop
-  const onDrop = (acceptedFiles) => {
-    if (acceptedFiles.length === 0) return;
-    const file = acceptedFiles[0];
-    Papa.parse(file, {
-      header: true,
-      dynamicTyping: true,
-      complete: (results) => {
-        setCsvData(results.data);
-        setColumns(results.meta.fields);
-        initializeConfig(results.meta.fields);
-        initializeReactFlow(results.meta.fields);
-      },
-      error: (error) => {
-        console.error('Error parsing CSV:', error);
-      },
-    });
+  const handleFileDrop = (data, fields) => {
+    setCsvData(data);
+    setColumns(fields);
+    initializeConfig(fields);
+    initializeReactFlow(fields);
   };
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: '.csv',
-  });
 
   // Initialize config with default selections
   const initializeConfig = (fields) => {
@@ -92,43 +72,46 @@ function App() {
   };
 
   // Handle relationship submission
-  const handleRelationshipSubmit = (e) => {
-    e.preventDefault();
+  const handleSaveRelationship = ({ relationshipType, relationshipFeatures }) => {
     if (!relationshipType) {
       alert('Please enter a relationship type.');
       return;
     }
 
-    // Update config.relationships
-    const newRelationship = {
-      source: currentEdge.source,
-      target: currentEdge.target,
-      type: relationshipType,
-      features: relationshipFeatures,
-    };
+    // Update config.relationships using functional updater to access previous state
+    setConfig((prevConfig) => {
+      const newRelationship = {
+        source: currentEdge.source,
+        target: currentEdge.target,
+        type: relationshipType,
+        features: relationshipFeatures,
+      };
 
-    setConfig((prevConfig) => ({
-      ...prevConfig,
-      relationships: [...prevConfig.relationships, newRelationship],
-    }));
+      // Create the new edge with data
+      const edgeWithData = {
+        ...currentEdge,
+        type: 'smoothstep', // You can choose any edge type you prefer
+        animated: prevConfig.graph_type === 'directed',
+        arrowHeadType: prevConfig.graph_type === 'directed' ? 'arrowclosed' : 'none',
+        label: relationshipType,
+        data: { type: relationshipType, features: relationshipFeatures },
+      };
 
-    // Add the edge with data
-    const edgeWithData = {
-      ...currentEdge,
-      type: 'smoothstep', // You can choose any edge type you prefer
-      animated: config.graph_type === 'directed',
-      arrowHeadType: config.graph_type === 'directed' ? 'arrowclosed' : 'none',
-      label: relationshipType,
-      data: { type: relationshipType, features: relationshipFeatures },
-    };
+      // Add the new relationship to the config
+      const updatedConfig = {
+        ...prevConfig,
+        relationships: [...prevConfig.relationships, newRelationship],
+      };
 
-    setEdges((eds) => addEdge(edgeWithData, eds));
+      // Update edges state
+      setEdges((eds) => addEdge(edgeWithData, eds));
+
+      return updatedConfig;
+    });
 
     // Reset modal state
     setModalIsOpen(false);
     setCurrentEdge(null);
-    setRelationshipType('');
-    setRelationshipFeatures([]);
   };
 
   // Handle edge creation
@@ -221,30 +204,15 @@ function App() {
         <h1>CSV to Graph Application</h1>
 
         {/* CSV Upload Section */}
-        <div {...getRootProps()} className="dropzone">
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Drop the CSV file here...</p>
-          ) : (
-            <p>Drag and drop a CSV file here, or click to select file</p>
-          )}
-        </div>
+        <FileUploader onFileDrop={handleFileDrop} />
 
         {/* Configuration Section */}
         {columns.length > 0 && (
-          <div className="config-section">
-            <h2>Configuration</h2>
-
-            {/* Instructions */}
-            <p>
-              Drag connections between columns to define relationships. After connecting, specify the relationship type and features.
-            </p>
-
-            {/* Submit Button */}
-            <button onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Processing...' : 'Submit Configuration'}
-            </button>
-          </div>
+          <ConfigurationPanel
+            columns={columns}
+            onSubmit={handleSubmit}
+            loading={loading}
+          />
         )}
 
         {/* React Flow Graph */}
@@ -265,70 +233,16 @@ function App() {
 
         {/* Graph Visualization Section */}
         {graphData && (
-          <div className="graph-section">
-            <h2>Graph Visualization</h2>
-            <div className="graph-container">
-              <ForceGraph2D
-                graphData={graphData}
-                nodeAutoColorBy="type"
-                linkAutoColorBy="type"
-                nodeLabel="id"
-                linkLabel="type"
-                nodeVal={(node) => node.val}
-                linkDirectionalArrowLength={graphData.directed ? 6 : 0}
-                linkDirectionalArrowRelPos={0.5}
-                width={dimensions.width}
-                height={dimensions.height}
-              />
-            </div>
-          </div>
+          <GraphVisualizer graphData={graphData} dimensions={dimensions} />
         )}
 
         {/* Relationship Modal */}
-        <Modal
+        <RelationshipModal
           isOpen={modalIsOpen}
           onRequestClose={() => setModalIsOpen(false)}
-          contentLabel="Relationship Configuration"
-          className="modal"
-          overlayClassName="overlay"
-        >
-          <h2>Configure Relationship</h2>
-          <form onSubmit={handleRelationshipSubmit}>
-            <label>
-              Relationship Type:
-              <input
-                type="text"
-                value={relationshipType}
-                onChange={(e) => setRelationshipType(e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              Features:
-              <select
-                multiple
-                value={relationshipFeatures}
-                onChange={(e) =>
-                  setRelationshipFeatures(
-                    Array.from(e.target.selectedOptions).map((option) => option.value)
-                  )
-                }
-              >
-                {columns.map((col) => (
-                  <option key={col} value={col}>
-                    {col}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="modal-buttons">
-              <button type="submit">Save</button>
-              <button type="button" onClick={() => setModalIsOpen(false)}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        </Modal>
+          columns={columns}
+          onSaveRelationship={handleSaveRelationship}
+        />
       </div>
     </ReactFlowProvider>
   );
