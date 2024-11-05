@@ -1,6 +1,7 @@
-// my-app/src/components/RelationshipModal.js
-import React, { useState } from 'react';
+// src/components/RelationshipModal/RelationshipModal.js
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
+import './RelationshipModal.css'; // Updated path
 
 Modal.setAppElement('#root'); // For accessibility
 
@@ -13,9 +14,16 @@ const RelationshipModal = ({
   const [relationshipType, setRelationshipType] = useState('');
   const [relationshipFeatures, setRelationshipFeatures] = useState([]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setRelationshipType('');
+      setRelationshipFeatures([]);
+    }
+  }, [isOpen]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!relationshipType) {
+    if (!relationshipType.trim()) {
       alert('Please enter a relationship type.');
       return;
     }
@@ -25,12 +33,17 @@ const RelationshipModal = ({
     setRelationshipFeatures([]);
   };
 
+  const handleFeatureChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+    setRelationshipFeatures(selectedOptions);
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       contentLabel="Relationship Configuration"
-      className="modal"
+      className="relationship-modal"
       overlayClassName="overlay"
     >
       <h2>Configure Relationship</h2>
@@ -42,6 +55,8 @@ const RelationshipModal = ({
             value={relationshipType}
             onChange={(e) => setRelationshipType(e.target.value)}
             required
+            className="relationship-type-input"
+            placeholder="e.g., connects, influences"
           />
         </label>
         <label>
@@ -49,11 +64,8 @@ const RelationshipModal = ({
           <select
             multiple
             value={relationshipFeatures}
-            onChange={(e) =>
-              setRelationshipFeatures(
-                Array.from(e.target.selectedOptions).map((option) => option.value)
-              )
-            }
+            onChange={handleFeatureChange}
+            className="relationship-features-select"
           >
             {columns.map((col) => (
               <option key={col} value={col}>

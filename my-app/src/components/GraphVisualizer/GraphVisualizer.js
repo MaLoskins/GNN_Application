@@ -1,6 +1,7 @@
-// my-app/src/components/GraphVisualizer.js
+// src/components/GraphVisualizer/GraphVisualizer.js
 import React from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
+import './GraphVisualizer.css'; // Updated path
 
 const GraphVisualizer = ({ graphData, dimensions }) => {
   return (
@@ -18,6 +19,10 @@ const GraphVisualizer = ({ graphData, dimensions }) => {
           linkDirectionalArrowRelPos={0.5}
           width={dimensions.width}
           height={dimensions.height}
+          cooldownTicks={300}
+          enableNodeDrag={true}
+          enableZoomPanInteraction={true}
+          backgroundColor={null}
         />
       </div>
     </div>

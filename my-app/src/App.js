@@ -1,17 +1,19 @@
-// my-app/src/App.js
+// src/App.js
 import React, { useState, useEffect } from 'react';
 import { processData } from './api';
-import ReactFlow, { 
+import { 
   ReactFlowProvider, 
   addEdge, 
   useNodesState, 
   useEdgesState 
-} from 'react-flow-renderer'; // Correctly import ReactFlow as default
-import FileUploader from './components/FileUploader';
-import ConfigurationPanel from './components/ConfigurationPanel';
-import GraphVisualizer from './components/GraphVisualizer';
-import RelationshipModal from './components/RelationshipModal';
+} from 'react-flow-renderer'; // Named Imports
+import FileUploader from './components/FileUploader/FileUploader';
+import ConfigurationPanel from './components/ConfigurationPanel/ConfigurationPanel';
+import GraphVisualizer from './components/GraphVisualizer/GraphVisualizer';
+import RelationshipModal from './components/RelationshipModal/RelationshipModal';
+import ReactFlowWrapper from './components/ReactFlowWrapper/ReactFlowWrapper'; // Import the new component
 import './App.css';
+import 'react-flow-renderer/dist/style.css'; // Import React Flow's default styles
 
 function App() {
   const [csvData, setCsvData] = useState([]);
@@ -115,7 +117,7 @@ function App() {
   };
 
   // Handle edge creation
-  const onConnect = (params) => {
+  const onConnectHandler = (params) => {
     setCurrentEdge(params);
     setModalIsOpen(true);
   };
@@ -215,20 +217,15 @@ function App() {
           />
         )}
 
-        {/* React Flow Graph */}
+        {/* React Flow Configurator */}
         {columns.length > 0 && (
-          <div className="react-flow-wrapper">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              deleteKeyCode={46} /* 'delete'-key */
-              fitView
-              style={{ width: '100%', height: '100%' }}
-            />
-          </div>
+          <ReactFlowWrapper
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnectHandler}
+          />
         )}
 
         {/* Graph Visualization Section */}

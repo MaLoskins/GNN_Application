@@ -1,5 +1,6 @@
-// my-app/src/components/ConfigurationPanel.js
+// src/components/ConfigurationPanel/ConfigurationPanel.js
 import React from 'react';
+import './ConfigurationPanel.css'; // Updated path
 
 const ConfigurationPanel = ({ columns, onSubmit, loading }) => {
   return (

@@ -9,7 +9,13 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+# Set up logging to file instead of console
+logging.basicConfig(
+    level=logging.INFO,
+    filename='app.log',         # Specify the file name for the log file
+    filemode='w',               # 'w' for write mode, 'a' for append mode
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 

@@ -1,0 +1,22 @@
+/* src/components/FileUploader/FileUploader.css */
+
+.dropzone {
+  border: 2px dashed var(--dropzone-border);
+  border-radius: 10px;
+  padding: 40px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  background-color: var(--dropzone-background);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dropzone:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--accent-color);
+}
+
+.dropzone p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--secondary-text-color);
+}

@@ -1,0 +1,430 @@
+./ConfigurationPanel/ConfigurationPanel.css:
+/* src/components/ConfigurationPanel/ConfigurationPanel.css */
+
+.config-section {
+  text-align: left;
+  max-width: 1200px; /* Increased max-width for wider screens */
+  margin: 0 auto 30px;
+  padding: 25px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.config-section h2 {
+  margin-top: 0;
+  color: var(--accent-color);
+}
+
+.config-section p {
+  color: var(--secondary-text-color);
+  line-height: 1.6;
+}
+
+/* Submit Button */
+.config-section button {
+  background-color: var(--button-background);
+  color: var(--text-color);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.config-section button:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-2px);
+}
+
+.config-section button:disabled {
+  background-color: #555555;
+  cursor: not-allowed;
+}
+
+
+
+./ConfigurationPanel/ConfigurationPanel.js:
+// src/components/ConfigurationPanel/ConfigurationPanel.js
+import React from 'react';
+import './ConfigurationPanel.css'; // Updated path
+
+const ConfigurationPanel = ({ columns, onSubmit, loading }) => {
+  return (
+    <div className="config-section">
+      <h2>Configuration</h2>
+      <p>
+        Drag connections between columns to define relationships. After connecting, specify the relationship type and features.
+      </p>
+      <button onClick={onSubmit} disabled={loading}>
+        {loading ? 'Processing...' : 'Submit Configuration'}
+      </button>
+    </div>
+  );
+};
+
+export default ConfigurationPanel;
+
+
+
+./FileUploader/FileUploader.css:
+/* src/components/FileUploader/FileUploader.css */
+
+.dropzone {
+  border: 2px dashed var(--dropzone-border);
+  border-radius: 10px;
+  padding: 40px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  background-color: var(--dropzone-background);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dropzone:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--accent-color);
+}
+
+.dropzone p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--secondary-text-color);
+}
+
+
+
+./FileUploader/FileUploader.js:
+// src/components/FileUploader/FileUploader.js
+import React from 'react';
+import { useDropzone } from 'react-dropzone';
+import Papa from 'papaparse';
+import './FileUploader.css'; // Updated path
+
+const FileUploader = ({ onFileDrop }) => {
+  const onDrop = (acceptedFiles) => {
+    if (acceptedFiles.length === 0) return;
+    const file = acceptedFiles[0];
+    Papa.parse(file, {
+      header: true,
+      dynamicTyping: true,
+      complete: (results) => {
+        onFileDrop(results.data, results.meta.fields);
+      },
+      error: (error) => {
+        console.error('Error parsing CSV:', error);
+      },
+    });
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: '.csv',
+  });
+
+  return (
+    <div {...getRootProps()} className="dropzone">
+      <input {...getInputProps()} />
+      {isDragActive ? (
+        <p>Drop the CSV file here...</p>
+      ) : (
+        <p>Drag and drop a CSV file here, or click to select file</p>
+      )}
+    </div>
+  );
+};
+
+export default FileUploader;
+
+
+
+./GraphVisualizer/GraphVisualizer.css:
+/* src/components/GraphVisualizer/GraphVisualizer.css */
+
+.graph-section {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.graph-section h2 {
+  color: var(--accent-color);
+  margin-bottom: 20px;
+}
+
+.graph-container {
+  width: 100%;
+  max-width: 1800px; /* Increased max-width for wider screens */
+  margin: 0 auto;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 3 / 2; /* Ensures a 3:2 aspect ratio */
+}
+
+/* ForceGraph2D Styling */
+.graph-section canvas {
+  background-color: var(--primary-color) !important;
+}
+
+
+
+./GraphVisualizer/GraphVisualizer.js:
+// src/components/GraphVisualizer/GraphVisualizer.js
+import React from 'react';
+import ForceGraph2D from 'react-force-graph-2d';
+import './GraphVisualizer.css'; // Updated path
+
+const GraphVisualizer = ({ graphData, dimensions }) => {
+  return (
+    <div className="graph-section">
+      <h2>Graph Visualization</h2>
+      <div className="graph-container">
+        <ForceGraph2D
+          graphData={graphData}
+          nodeAutoColorBy="type"
+          linkAutoColorBy="type"
+          nodeLabel="id"
+          linkLabel="type"
+          nodeVal={(node) => node.val}
+          linkDirectionalArrowLength={graphData.directed ? 6 : 0}
+          linkDirectionalArrowRelPos={0.5}
+          width={dimensions.width}
+          height={dimensions.height}
+          cooldownTicks={300}
+          enableNodeDrag={true}
+          enableZoomPanInteraction={true}
+          backgroundColor={null}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default GraphVisualizer;
+
+
+
+./RelationshipModal/RelationshipModal.css:
+/* src/components/RelationshipModal/RelationshipModal.css */
+
+.relationship-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  background-color: var(--modal-background);
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  color: var(--text-color);
+  z-index: 1000;
+  transition: opacity 0.3s ease-in-out;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 999;
+}
+
+.relationship-modal h2 {
+  margin-top: 0;
+  color: var(--accent-color);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.relationship-modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.relationship-modal label {
+  margin-bottom: 15px;
+  text-align: left;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.relationship-type-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  background-color: var(--input-background);
+  color: var(--input-text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.relationship-type-input:focus {
+  border-color: var(--accent-color);
+}
+
+.relationship-features-select {
+  width: 100%;
+  height: 100px;
+  padding: 8px;
+  margin-top: 5px;
+  background-color: var(--select-background);
+  color: var(--select-text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s;
+  overflow-y: auto;
+}
+
+.relationship-features-select:focus {
+  border-color: var(--accent-color);
+}
+
+.relationship-features-select option {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.modal-buttons button:first-child {
+  background-color: var(--button-background);
+  color: var(--text-color);
+}
+
+.modal-buttons button:first-child:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-2px);
+}
+
+.modal-buttons button:last-child {
+  background-color: #e74c3c; /* Cancel Button - Red */
+  color: #ffffff;
+}
+
+.modal-buttons button:last-child:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+
+
+./RelationshipModal/RelationshipModal.js:
+// src/components/RelationshipModal/RelationshipModal.js
+import React, { useState, useEffect } from 'react';
+import Modal from 'react-modal';
+import './RelationshipModal.css'; // Updated path
+
+Modal.setAppElement('#root'); // For accessibility
+
+const RelationshipModal = ({
+  isOpen,
+  onRequestClose,
+  columns,
+  onSaveRelationship,
+}) => {
+  const [relationshipType, setRelationshipType] = useState('');
+  const [relationshipFeatures, setRelationshipFeatures] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setRelationshipType('');
+      setRelationshipFeatures([]);
+    }
+  }, [isOpen]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!relationshipType.trim()) {
+      alert('Please enter a relationship type.');
+      return;
+    }
+    onSaveRelationship({ relationshipType, relationshipFeatures });
+    // Reset modal state
+    setRelationshipType('');
+    setRelationshipFeatures([]);
+  };
+
+  const handleFeatureChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+    setRelationshipFeatures(selectedOptions);
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      contentLabel="Relationship Configuration"
+      className="relationship-modal"
+      overlayClassName="overlay"
+    >
+      <h2>Configure Relationship</h2>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Relationship Type:
+          <input
+            type="text"
+            value={relationshipType}
+            onChange={(e) => setRelationshipType(e.target.value)}
+            required
+            className="relationship-type-input"
+            placeholder="e.g., connects, influences"
+          />
+        </label>
+        <label>
+          Features:
+          <select
+            multiple
+            value={relationshipFeatures}
+            onChange={handleFeatureChange}
+            className="relationship-features-select"
+          >
+            {columns.map((col) => (
+              <option key={col} value={col}>
+                {col}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="modal-buttons">
+          <button type="submit">Save</button>
+          <button type="button" onClick={onRequestClose}>
+            Cancel
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+export default RelationshipModal;
+
+
+

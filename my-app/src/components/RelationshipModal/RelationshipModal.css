@@ -1,0 +1,125 @@
+/* src/components/RelationshipModal/RelationshipModal.css */
+
+.relationship-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  background-color: var(--modal-background);
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  color: var(--text-color);
+  z-index: 1000;
+  transition: opacity 0.3s ease-in-out;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 999;
+}
+
+.relationship-modal h2 {
+  margin-top: 0;
+  color: var(--accent-color);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.relationship-modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.relationship-modal label {
+  margin-bottom: 15px;
+  text-align: left;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.relationship-type-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  background-color: var(--input-background);
+  color: var(--input-text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.relationship-type-input:focus {
+  border-color: var(--accent-color);
+}
+
+.relationship-features-select {
+  width: 100%;
+  height: 100px;
+  padding: 8px;
+  margin-top: 5px;
+  background-color: var(--select-background);
+  color: var(--select-text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s;
+  overflow-y: auto;
+}
+
+.relationship-features-select:focus {
+  border-color: var(--accent-color);
+}
+
+.relationship-features-select option {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.modal-buttons button:first-child {
+  background-color: var(--button-background);
+  color: var(--text-color);
+}
+
+.modal-buttons button:first-child:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-2px);
+}
+
+.modal-buttons button:last-child {
+  background-color: #e74c3c; /* Cancel Button - Red */
+  color: #ffffff;
+}
+
+.modal-buttons button:last-child:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}

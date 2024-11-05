@@ -1,0 +1,44 @@
+/* src/components/ConfigurationPanel/ConfigurationPanel.css */
+
+.config-section {
+  text-align: left;
+  max-width: 1200px; /* Increased max-width for wider screens */
+  margin: 0 auto 30px;
+  padding: 25px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.config-section h2 {
+  margin-top: 0;
+  color: var(--accent-color);
+}
+
+.config-section p {
+  color: var(--secondary-text-color);
+  line-height: 1.6;
+}
+
+/* Submit Button */
+.config-section button {
+  background-color: var(--button-background);
+  color: var(--text-color);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.config-section button:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-2px);
+}
+
+.config-section button:disabled {
+  background-color: #555555;
+  cursor: not-allowed;
+}

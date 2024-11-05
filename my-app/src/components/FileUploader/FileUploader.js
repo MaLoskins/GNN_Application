@@ -1,7 +1,8 @@
-// my-app/src/components/FileUploader.js
+// src/components/FileUploader/FileUploader.js
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
+import './FileUploader.css'; // Updated path
 
 const FileUploader = ({ onFileDrop }) => {
   const onDrop = (acceptedFiles) => {
