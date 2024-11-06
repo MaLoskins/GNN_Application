@@ -1,4 +1,4 @@
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/ConfigurationPanel/ConfigurationPanel.css:
+my-app/src/components/ConfigurationPanel/ConfigurationPanel.css:
 /* src/components/ConfigurationPanel/ConfigurationPanel.css */
 
 .config-section {
@@ -46,7 +46,7 @@ C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/Configur
 
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/ConfigurationPanel/ConfigurationPanel.js:
+my-app/src/components/ConfigurationPanel/ConfigurationPanel.js:
 // src/components/ConfigurationPanel/ConfigurationPanel.js
 import React from 'react';
 import './ConfigurationPanel.css'; // Updated path
@@ -67,9 +67,43 @@ const ConfigurationPanel = ({ columns, onSubmit, loading }) => {
 
 export default ConfigurationPanel;
 
+/*
+Detailed Explanation:
+
+The `ConfigurationPanel` component serves as a user interface element that allows users to configure relationships between different data columns within the application. Here's a breakdown of its structure and functionality:
+
+1. **Imports**:
+   - **React**: The core library for building user interfaces in React.
+   - **ConfigurationPanel.css**: The CSS stylesheet that styles the component, ensuring it adheres to the application's design system.
+
+2. **Component Definition**:
+   - **Functional Component**: `ConfigurationPanel` is defined as a functional component that accepts three props:
+     - `columns`: An array of column names or objects representing the data columns available for configuration.
+     - `onSubmit`: A callback function that is invoked when the user clicks the "Submit Configuration" button. This function likely handles the submission of the configured relationships to the backend or updates the application's state.
+     - `loading`: A boolean value indicating whether a submission process is currently ongoing. When `loading` is `true`, the submit button is disabled and displays "Processing..." to inform the user that their submission is being processed.
+
+3. **Rendering**:
+   - The component returns a JSX structure comprising:
+     - A `div` with the class `config-section` that encapsulates the entire configuration panel, applying styles defined in the CSS file.
+     - An `h2` header titled "Configuration" to denote the purpose of the panel.
+     - A `p` tag containing instructional text guiding the user on how to define relationships by dragging connections between columns and specifying relationship types and features.
+     - A `button` element that triggers the `onSubmit` function when clicked. The button's label dynamically changes based on the `loading` state:
+       - Displays "Processing..." when `loading` is `true`.
+       - Displays "Submit Configuration" when `loading` is `false`.
+     - The button is disabled during the loading state to prevent multiple submissions.
+
+4. **Export**:
+   - The component is exported as the default export, allowing it to be easily imported and used in other parts of the application.
+
+**Purpose in the Application**:
+The `ConfigurationPanel` is a crucial component that facilitates user interaction for setting up data relationships. By allowing users to define how different data columns relate to each other, it enables the dynamic generation of graphs or other data visualizations based on user-defined configurations. This component likely interacts closely with other components like `ReactFlowWrapper` for visualizing relationships and `App.js` for managing the overall application state.
+
+*/
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/FileUploader/FileUploader.css:
+
+
+my-app/src/components/FileUploader/FileUploader.css:
 /* src/components/FileUploader/FileUploader.css */
 
 .dropzone {
@@ -95,7 +129,7 @@ C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/FileUplo
 
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/FileUploader/FileUploader.js:
+my-app/src/components/FileUploader/FileUploader.js:
 // src/components/FileUploader/FileUploader.js
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -137,9 +171,58 @@ const FileUploader = ({ onFileDrop }) => {
 
 export default FileUploader;
 
+/*
+Detailed Explanation:
+
+The `FileUploader` component provides a user interface for uploading CSV files by allowing users to drag and drop files or select them via a file dialog. Here's an in-depth look at its functionality:
+
+1. **Imports**:
+   - **React**: The primary library for building user interfaces.
+   - **useDropzone** from **react-dropzone**: A custom hook that facilitates drag-and-drop file uploads.
+   - **Papa** from **papaparse**: A powerful CSV parsing library used to convert CSV files into usable JavaScript objects.
+   - **FileUploader.css**: The CSS stylesheet that styles the dropzone area and its elements.
+
+2. **Component Definition**:
+   - **Functional Component**: `FileUploader` is a functional component that accepts one prop:
+     - `onFileDrop`: A callback function that is invoked after successfully parsing the CSV file. It receives two arguments:
+       - `results.data`: An array of objects representing the rows in the CSV file.
+       - `results.meta.fields`: An array of strings representing the header fields (column names) of the CSV.
+
+3. **File Handling (`onDrop` Function)**:
+   - **File Validation**: The function first checks if any files have been dropped. If no files are present (`acceptedFiles.length === 0`), it exits early.
+   - **CSV Parsing**:
+     - **Selection**: It selects the first file from the dropped files (`acceptedFiles[0]`), assuming only one file is to be processed.
+     - **Papa.parse Configuration**:
+       - `header: true`: Instructs PapaParse to treat the first row of the CSV as headers.
+       - `dynamicTyping: true`: Enables automatic type conversion (e.g., strings to numbers).
+       - `complete`: A callback function that is executed upon successful parsing, which then calls the `onFileDrop` prop with the parsed data and headers.
+       - `error`: A callback function that logs any errors encountered during parsing to the console.
+
+4. **Dropzone Setup**:
+   - **useDropzone Hook**: Initializes the dropzone with specific configurations:
+     - `onDrop`: The function defined above to handle file drops.
+     - `accept: '.csv'`: Restricts the dropzone to accept only CSV files.
+
+5. **Rendering**:
+   - **Dropzone Area**:
+     - A `div` is rendered with properties and event handlers spread from `getRootProps()`, and it is assigned the class `dropzone` for styling.
+     - An `input` element is included with properties spread from `getInputProps()`, which manages file selection via the dialog.
+     - **Dynamic Text**: The content inside the `div` changes based on the `isDragActive` state:
+       - When a file is being dragged over the dropzone, it displays "Drop the CSV file here...".
+       - Otherwise, it displays "Drag and drop a CSV file here, or click to select file".
+
+6. **Export**:
+   - The component is exported as the default export, making it available for use in other parts of the application.
+
+**Purpose in the Application**:
+The `FileUploader` component is essential for importing data into the application. By allowing users to upload CSV files, it enables the application to process and visualize data based on user-provided datasets. The integration of `react-dropzone` and `papaparse` ensures a smooth and efficient file upload and parsing experience, handling common edge cases like invalid file types and parsing errors gracefully.
+
+*/
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/GraphVisualizer/GraphVisualizer.css:
+
+
+my-app/src/components/GraphVisualizer/GraphVisualizer.css:
 /* src/components/GraphVisualizer/GraphVisualizer.css */
 
 .graph-section {
@@ -171,7 +254,7 @@ C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/GraphVis
 
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/GraphVisualizer/GraphVisualizer.js:
+my-app/src/components/GraphVisualizer/GraphVisualizer.js:
 // src/components/GraphVisualizer/GraphVisualizer.js
 import React from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
@@ -205,9 +288,53 @@ const GraphVisualizer = ({ graphData, dimensions }) => {
 
 export default GraphVisualizer;
 
+/*
+Detailed Explanation:
+
+The `GraphVisualizer` component is responsible for rendering a 2D force-directed graph based on the provided graph data. It leverages the `react-force-graph-2d` library to create interactive and dynamic graph visualizations. Here's a comprehensive breakdown of its structure and functionality:
+
+1. **Imports**:
+   - **React**: The core library for building user interfaces.
+   - **ForceGraph2D** from **react-force-graph-2d**: A component for rendering 2D force-directed graphs, allowing for rich interactivity and customization.
+   - **GraphVisualizer.css**: The CSS stylesheet that styles the graph visualization section, ensuring consistency with the application's design.
+
+2. **Component Definition**:
+   - **Functional Component**: `GraphVisualizer` is a functional component that accepts two props:
+     - `graphData`: An object representing the graph structure, typically containing `nodes` and `links` arrays. Each node and link can have various attributes that define their properties and relationships.
+     - `dimensions`: An object specifying the `width` and `height` for the graph canvas, allowing the visualization to be responsive and fit within its container.
+
+3. **Rendering**:
+   - The component returns a JSX structure comprising:
+     - A `div` with the class `graph-section` that wraps the entire visualization area.
+     - An `h2` header titled "Graph Visualization" to denote the purpose of the section.
+     - A nested `div` with the class `graph-container` that houses the `ForceGraph2D` component, applying specific styles for layout and responsiveness.
+     - **ForceGraph2D Configuration**:
+       - `graphData`: Passes the graph data to the visualization component.
+       - `nodeAutoColorBy="type"`: Automatically assigns colors to nodes based on their `type` attribute, enhancing visual differentiation.
+       - `linkAutoColorBy="type"`: Similarly, assigns colors to links based on their `type` attribute.
+       - `nodeLabel="id"`: Sets the label for each node to display its `id` attribute when hovered over.
+       - `linkLabel="type"`: Sets the label for each link to display its `type` attribute when hovered over.
+       - `nodeVal={(node) => node.val}`: Determines the size of each node based on its `val` attribute, allowing for size differentiation based on node importance or degree.
+       - `linkDirectionalArrowLength={graphData.directed ? 6 : 0}`: Conditionally renders directional arrows on links if the graph is directed.
+       - `linkDirectionalArrowRelPos={0.5}`: Positions the directional arrow at the midpoint of the link.
+       - `width` and `height`: Sets the dimensions of the graph canvas based on the `dimensions` prop, ensuring the graph fits its container.
+       - `cooldownTicks={300}`: Controls the simulation's cooldown ticks, affecting how long the simulation runs to stabilize node positions.
+       - `enableNodeDrag={true}`: Allows users to manually drag nodes, providing interactive control over the graph layout.
+       - `enableZoomPanInteraction={true}`: Enables zooming and panning within the graph, facilitating exploration of large or complex graphs.
+       - `backgroundColor={null}`: Sets the background color of the graph canvas. `null` typically defaults to transparent or the parent container's background.
+
+4. **Export**:
+   - The component is exported as the default export, making it accessible for import and use in other parts of the application.
+
+**Purpose in the Application**:
+The `GraphVisualizer` is a key component for data visualization within the application. After users upload and configure their CSV data, this component takes the processed graph data and renders it interactively. Features like automatic coloring, dynamic sizing, and interactivity (dragging, zooming, panning) enhance the user's ability to analyze and understand complex relationships within the data. By leveraging `react-force-graph-2d`, the component ensures efficient rendering and smooth interactions, even with large datasets.
+
+*/
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/output.txt:
+
+
+my-app/src/components/output.txt:
 ./ConfigurationPanel/ConfigurationPanel.css:
 /* src/components/ConfigurationPanel/ConfigurationPanel.css */
 
@@ -641,8 +768,8 @@ export default RelationshipModal;
 
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/ReactFlowWrapper/ReactFlowWrapper.css:
-/* src/components/ReactFlowWrapper/ReactFlowWrapper.module.css */
+my-app/src/components/ReactFlowWrapper/ReactFlowWrapper.css:
+/* src/components/ReactFlowWrapper/ReactFlowWrapper.css */
 
 .wrapper {
   height: 60vh; /* 60% of the viewport height */
@@ -701,7 +828,7 @@ C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/ReactFlo
 
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/ReactFlowWrapper/ReactFlowWrapper.js:
+my-app/src/components/ReactFlowWrapper/ReactFlowWrapper.js:
 // src/components/ReactFlowWrapper/ReactFlowWrapper.js
 import React from 'react';
 import ReactFlow from 'react-flow-renderer';
@@ -727,9 +854,53 @@ const ReactFlowWrapper = ({ nodes, edges, onNodesChange, onEdgesChange, onConnec
 
 export default ReactFlowWrapper;
 
+/*
+Detailed Explanation:
+
+The `ReactFlowWrapper` component encapsulates the `ReactFlow` component from the `react-flow-renderer` library, providing a streamlined interface for rendering and managing interactive flow diagrams or node-based graphs within the application. Here's an in-depth look at its structure and functionality:
+
+1. **Imports**:
+   - **React**: The primary library for building user interfaces.
+   - **ReactFlow** from **react-flow-renderer**: A component that facilitates the creation of interactive, customizable flow diagrams, allowing for features like node dragging, zooming, and dynamic edge creation.
+   - **ReactFlowWrapper.css**: The CSS stylesheet that styles the wrapper and ensures the flow diagram fits within its container.
+   - **'react-flow-renderer/dist/style.css'**: Imports the default styles provided by `react-flow-renderer`, ensuring that the flow diagram has baseline styling and functionality out of the box.
+
+2. **Component Definition**:
+   - **Functional Component**: `ReactFlowWrapper` is a functional component that accepts the following props:
+     - `nodes`: An array of node objects defining the individual elements within the flow diagram. Each node typically includes properties like `id`, `type`, `position`, and `data`.
+     - `edges`: An array of edge objects defining the connections between nodes. Each edge includes properties like `id`, `source`, `target`, and potentially custom data.
+     - `onNodesChange`: A callback function that handles updates or changes to the nodes, such as repositioning or editing node data.
+     - `onEdgesChange`: A callback function that manages updates or changes to the edges, like adding or removing connections.
+     - `onConnect`: A callback function that is invoked when a new connection (edge) is created between nodes, typically by dragging from one node to another.
+
+3. **Rendering**:
+   - The component returns a JSX structure comprising:
+     - A `div` with the class `wrapper` that serves as the container for the flow diagram. This container is styled via `ReactFlowWrapper.css` to ensure proper sizing, layout, and responsiveness.
+     - Inside the `div`, the `ReactFlow` component is rendered with the following configurations:
+       - **Data Props**:
+         - `nodes`: Passes the array of node objects to define the nodes within the flow.
+         - `edges`: Passes the array of edge objects to define the connections between nodes.
+       - **Event Handlers**:
+         - `onNodesChange`: Assigns the callback for handling changes to nodes.
+         - `onEdgesChange`: Assigns the callback for handling changes to edges.
+         - `onConnect`: Assigns the callback for handling the creation of new connections between nodes.
+       - **Additional Configurations**:
+         - `deleteKeyCode={46}`: Specifies that pressing the 'Delete' key (key code 46) will delete selected nodes or edges.
+         - `fitView`: Automatically adjusts the view to fit all nodes and edges within the visible area, ensuring that the entire flow is visible upon rendering or resizing.
+         - `style={{ width: '100%', height: '100%' }}`: Ensures that the `ReactFlow` component occupies the full width and height of its parent container (`div.wrapper`), allowing for responsive resizing and proper layout.
+
+4. **Export**:
+   - The component is exported as the default export, enabling it to be easily imported and used in other parts of the application.
+
+**Purpose in the Application**:
+The `ReactFlowWrapper` component is pivotal for visualizing and managing the relationships between different data columns or entities within the application. By leveraging `react-flow-renderer`, it provides users with an intuitive interface to create, modify, and visualize connections in a node-based graph format. Features like node dragging, dynamic edge creation, and responsive resizing enhance the user experience, making it easier to understand and interact with complex data relationships. This component likely interacts closely with the `ConfigurationPanel` and `RelationshipModal` components to reflect user-defined configurations in real-time visualizations.
+
+*/
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/RelationshipModal/RelationshipModal.css:
+
+
+my-app/src/components/RelationshipModal/RelationshipModal.css:
 /* src/components/RelationshipModal/RelationshipModal.css */
 
 .relationship-modal {
@@ -858,7 +1029,7 @@ C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/Relation
 
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/RelationshipModal/RelationshipModal.js:
+my-app/src/components/RelationshipModal/RelationshipModal.js:
 // src/components/RelationshipModal/RelationshipModal.js
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
@@ -948,442 +1119,70 @@ const RelationshipModal = ({
 
 export default RelationshipModal;
 
+/*
+Detailed Explanation:
+
+The `RelationshipModal` component provides a modal dialog that allows users to configure relationships between different data columns. This modal is essential for defining how various entities within the uploaded CSV data relate to each other, facilitating the creation of meaningful graph structures. Here's a comprehensive breakdown of its structure and functionality:
+
+1. **Imports**:
+   - **React**, **useState**, **useEffect**: Core React library and hooks for managing state and side effects within the component.
+   - **Modal** from **react-modal**: A library for creating accessible modal dialogs in React applications.
+   - **RelationshipModal.css**: The CSS stylesheet that styles the modal, ensuring it aligns with the application's design and accessibility standards.
+
+2. **Accessibility Setup**:
+   - `Modal.setAppElement('#root')`: Sets the root element of the app for accessibility purposes, ensuring that screen readers and other assistive technologies can appropriately handle the modal's presence.
+
+3. **Component Definition**:
+   - **Functional Component**: `RelationshipModal` is a functional component that accepts the following props:
+     - `isOpen`: A boolean that determines whether the modal is open or closed.
+     - `onRequestClose`: A callback function that is invoked when the modal requests to be closed (e.g., when the user clicks outside the modal or presses the escape key).
+     - `columns`: An array of column names or objects representing the data columns available for defining relationships.
+     - `onSaveRelationship`: A callback function that is invoked when the user saves the relationship configuration. It receives an object containing the `relationshipType` and `relationshipFeatures`.
+
+4. **State Management**:
+   - **`relationshipType`**: A state variable that holds the type of relationship being defined (e.g., "connects", "influences"). It's initialized to an empty string.
+   - **`relationshipFeatures`**: A state variable that holds an array of selected features associated with the relationship. It's initialized to an empty array.
+
+5. **Side Effects (`useEffect`)**:
+   - Monitors the `isOpen` prop. When the modal is opened (`isOpen` becomes `true`), it resets the `relationshipType` and `relationshipFeatures` to their initial states, ensuring that each time the modal is opened, it starts fresh without residual data from previous interactions.
+
+6. **Event Handlers**:
+   - **`handleSubmit`**:
+     - Prevents the default form submission behavior.
+     - Validates that the `relationshipType` is not empty. If it is, it alerts the user to enter a relationship type.
+     - Invokes the `onSaveRelationship` prop with an object containing the `relationshipType` and `relationshipFeatures`.
+     - Resets the modal's state by clearing `relationshipType` and `relationshipFeatures`.
+   - **`handleFeatureChange`**:
+     - Handles changes to the multi-select input for relationship features.
+     - Extracts the selected options and updates the `relationshipFeatures` state accordingly.
+
+7. **Rendering**:
+   - Utilizes the `Modal` component to create an accessible modal dialog with the following configurations:
+     - **`isOpen`**: Controls the visibility of the modal based on the `isOpen` prop.
+     - **`onRequestClose`**: Assigns the callback for closing the modal.
+     - **`contentLabel`**: Provides an accessible label for the modal content.
+     - **`className` and `overlayClassName`**: Assigns CSS classes for styling the modal and its overlay, respectively.
+   - Inside the modal:
+     - An `h2` header titled "Configure Relationship" to indicate the modal's purpose.
+     - A `form` element that contains:
+       - **Relationship Type Input**:
+         - A labeled text input where users can specify the type of relationship.
+         - Includes a placeholder example (e.g., "connects", "influences") to guide users.
+       - **Features Selection**:
+         - A labeled multi-select dropdown that allows users to select multiple features related to the relationship.
+         - Dynamically generates `option` elements based on the `columns` prop, ensuring that users can associate relevant data columns with the relationship.
+       - **Buttons**:
+         - **Save**: A submit button that triggers the `handleSubmit` function to save the relationship configuration.
+         - **Cancel**: A button that invokes the `onRequestClose` callback to close the modal without saving changes.
+
+8. **Export**:
+   - The component is exported as the default export, making it accessible for import and use in other parts of the application.
+
+**Purpose in the Application**:
+The `RelationshipModal` is integral for defining how different data entities interact within the graph. By allowing users to specify the type and features of relationships, it enables the application to construct more nuanced and informative graph structures. This customization ensures that the resulting visualizations accurately reflect the underlying data relationships, enhancing data analysis and insights.
+
+*/
 
 
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app-backend/main.py:
-# my-app-backend/main.py
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import pandas as pd
-from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Any
-import networkx as nx
-from networkx.readwrite import json_graph
-from Tabular_to_Graph import DataFrameToGraph  # Ensure this class is accessible
-# To boot server use: uvicorn main:app --reload
-
-app = FastAPI()
-
-# CORS Configuration
-origins = [
-    "http://localhost:3000",  # React app origin
-    # Add other origins if needed
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Data Model
-class DataModel(BaseModel):
-    data: List[Dict[str, Any]]  # List of dictionaries representing CSV rows
-    config: Dict[str, Any]      # Configuration dictionary
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello from the Python Backend!"}
-
-@app.post("/process-data")
-def process_data(model: DataModel):
-    try:
-        df = pd.DataFrame(model.data)
-        config = model.config
-        graph_type = config.get('graph_type', 'directed')  # Optional graph type
-
-        # Initialize DataFrameToGraph
-        df_to_graph = DataFrameToGraph(df, config, graph_type=graph_type)
-        graph = df_to_graph.get_graph()
-
-        # Serialize graph to node-link format
-        graph_data = json_graph.node_link_data(graph)
-        
-        return {"graph": graph_data}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app-backend/Tabular_to_Graph.py:
-
-import pandas as pd
-import networkx as nx
-import matplotlib.pyplot as plt
-from typing import Dict, Any, List, Tuple, Optional
-import logging
-import matplotlib.patches as mpatches
-import matplotlib.cm as cm
-import matplotlib.colors as colors
-
-# Set up logging
-# Set up logging to file instead of console
-logging.basicConfig(
-    level=logging.INFO,
-    filename='app.log',         # Specify the file name for the log file
-    filemode='w',               # 'w' for write mode, 'a' for append mode
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-
-class DataFrameToGraph:
-    def __init__(self, 
-                 df: pd.DataFrame, 
-                 config: Dict[str, Any],
-                 graph_type: str = 'directed'):
-        """
-        Initializes the DataFrameToGraph instance.
-
-        Parameters:
-        - df (pd.DataFrame): The input DataFrame containing tabular data.
-        - config (Dict[str, Any]): Configuration dictionary defining column roles.
-        - graph_type (str): Type of the graph ('directed' or 'undirected').
-        """
-        self.df = df
-        self.config = config
-        self.graph_type = graph_type.lower()
-        self.graph = self._initialize_graph()
-        self.node_registry = {}
-        self.edge_registry = {}
-        
-        self._validate_config()
-        self._parse_dataframe()
-
-    def _initialize_graph(self) -> nx.Graph:
-        """Initializes the NetworkX graph based on the specified type."""
-        if self.graph_type == 'directed':
-            return nx.MultiDiGraph()
-        elif self.graph_type == 'undirected':
-            return nx.MultiGraph()
-        else:
-            raise ValueError("graph_type must be 'directed' or 'undirected'.")
-
-    def _validate_config(self):
-        """Validates the configuration dictionary."""
-        required_keys = ['nodes', 'relationships']
-        for key in required_keys:
-            if key not in self.config:
-                raise KeyError(f"Configuration missing required key: '{key}'")
-        
-        # Validate nodes configuration
-        for node_conf in self.config['nodes']:
-            if 'id' not in node_conf:
-                raise KeyError("Each node configuration must have an 'id' key.")
-            if 'type' not in node_conf:
-                logger.warning(f"Node configuration {node_conf} missing 'type'. Defaulting to 'default'.")
-
-        # Validate relationships configuration
-        for rel_conf in self.config['relationships']:
-            if 'source' not in rel_conf or 'target' not in rel_conf:
-                raise KeyError("Each relationship configuration must have 'source' and 'target' keys.")
-            if 'type' not in rel_conf:
-                logger.warning(f"Relationship configuration {rel_conf} missing 'type'. Defaulting to 'default'.")
-
-    def _parse_dataframe(self):
-        """Parses the DataFrame and constructs the graph."""
-        for index, row in self.df.iterrows():
-            # Add nodes
-            for node_conf in self.config['nodes']:
-                node_id = row.get(node_conf['id'], None)
-                if pd.isnull(node_id):
-                    logger.warning(f"Row {index}: Missing node ID for '{node_conf['id']}'. Skipping node addition.")
-                    continue
-                # Convert node_id to string for consistency
-                node_id_str = str(int(node_id)) if isinstance(node_id, float) and node_id.is_integer() else str(node_id)
-                node_type = node_conf.get('type', 'default')
-                features = self._extract_features(row, node_conf.get('features', []))
-                self._add_node(node_id_str, node_type, features)
-            
-            # Add edges
-            for rel_conf in self.config['relationships']:
-                source_col = rel_conf['source']
-                target_col = rel_conf['target']
-                relationship_type = rel_conf.get('type', 'default')
-                features = self._extract_features(row, rel_conf.get('features', []))
-                
-                source_id = row.get(source_col, None)
-                target_id = row.get(target_col, None)
-                
-                if pd.isnull(source_id) or pd.isnull(target_id):
-                    logger.warning(f"Row {index}: Missing source or target ID for relationship '{relationship_type}'. Skipping edge addition.")
-                    continue
-                
-                # Handle inconsistent data types
-                try:
-                    source_id = int(source_id)
-                    source_id_str = str(source_id)
-                except (ValueError, TypeError):
-                    logger.warning(f"Row {index}: Invalid data type for source_id '{source_id}'. Skipping edge addition.")
-                    continue
-
-                try:
-                    if isinstance(target_id, float) and target_id.is_integer():
-                        target_id = int(target_id)
-                    target_id_str = str(target_id)
-                except (ValueError, TypeError):
-                    logger.warning(f"Row {index}: Invalid data type for target_id '{target_id}'. Skipping edge addition.")
-                    continue
-
-                self._add_edge(source_id_str, target_id_str, relationship_type, features)
-
-    def _extract_features(self, row: pd.Series, feature_cols: List[str]) -> Dict[str, Any]:
-        """Extracts feature data from the row based on specified columns."""
-        features = {}
-        for feat in feature_cols:
-            if feat in row:
-                value = row[feat]
-                if isinstance(value, list):
-                    # Assume the list is present and valid
-                    features[feat] = value
-                elif pd.isnull(value):
-                    logger.info(f"Feature '{feat}' is missing in row. Assigning default value.")
-                    features[feat] = ""
-                else:
-                    features[feat] = value
-            else:
-                logger.info(f"Feature '{feat}' not found in row. Assigning default value.")
-                features[feat] = ""
-        return features
-
-    def _add_node(self, node_id: str, node_type: str, features: Dict[str, Any]):
-        """
-        Adds a node to the graph or updates its features if it already exists.
-
-        Parameters:
-        - node_id (str): Unique identifier for the node.
-        - node_type (str): Type/category of the node.
-        - features (Dict[str, Any]): Features to assign to the node.
-        """
-        if node_id not in self.node_registry:
-            self.node_registry[node_id] = {'type': node_type, 'features': features}
-            self.graph.add_node(node_id, type=node_type, **features)
-            logger.info(f"Added node {node_id} of type '{node_type}'.")
-        else:
-            # Update existing node features
-            existing_features = self.node_registry[node_id]['features']
-            updated_features = {k: v for k, v in features.items() if v != ""}
-            existing_features.update(updated_features)
-            self.graph.nodes[node_id].update(updated_features)
-            logger.info(f"Updated node {node_id} with features {updated_features}.")
-
-    def _add_edge(self, source_id: str, target_id: str, rel_type: str, features: Dict[str, Any]):
-        """
-        Adds an edge to the graph or updates its features if it already exists.
-
-        Parameters:
-        - source_id (str): Source node identifier.
-        - target_id (str): Target node identifier.
-        - rel_type (str): Type/category of the relationship.
-        - features (Dict[str, Any]): Features to assign to the edge.
-        """
-        edge_key = (source_id, target_id, rel_type)
-        if self.graph_type == 'undirected':
-            edge_key = tuple(sorted([source_id, target_id])) + (rel_type,)
-        
-        if not self.graph.has_edge(source_id, target_id, key=rel_type):
-            self.edge_registry[edge_key] = features
-            self.graph.add_edge(source_id, target_id, key=rel_type, type=rel_type, **features)
-            logger.info(f"Added edge from {source_id} to {target_id} of type '{rel_type}'.")
-        else:
-            # Update existing edge features
-            existing_features = self.edge_registry.get(edge_key, {})
-            updated_features = {k: v for k, v in features.items() if v != ""}
-            existing_features.update(updated_features)
-            self.edge_registry[edge_key] = existing_features
-            self.graph[source_id][target_id][rel_type].update(updated_features)
-            logger.info(f"Updated edge from {source_id} to {target_id} of type '{rel_type}' with features {updated_features}.")
-
-    def get_graph(self) -> nx.Graph:
-        """Returns the constructed NetworkX graph."""
-        return self.graph
-
-    def export_graph(self, format: str = 'adjacency', path: Optional[str] = None):
-        """
-        Exports the graph in the specified format.
-
-        Parameters:
-        - format (str): The format to export the graph ('adjacency', 'edge_list', etc.).
-        - path (str): File path to save the exported graph. If None, returns the data.
-
-        Returns:
-        - The exported graph data if path is None.
-        """
-        if format == 'adjacency':
-            data = nx.to_dict_of_dicts(self.graph)
-        elif format == 'edge_list':
-            # For MultiGraph/MultiDiGraph, each edge is represented with (source, target, key, data)
-            # We'll flatten this for the edge list
-            edges = []
-            for source, target, key, attrs in self.graph.edges(keys=True, data=True):
-                edge_data = {
-                    'source': source,
-                    'target': target,
-                    'key': key
-                }
-                # Exclude 'type' from attributes to prevent duplication
-                edge_attributes = {k: (v if v is not None else "") for k, v in attrs.items() if k != 'type'}
-                edge_data.update(edge_attributes)
-                edges.append(edge_data)
-            data = pd.DataFrame(edges)
-        else:
-            raise ValueError("Unsupported format. Use 'adjacency' or 'edge_list'.")
-        
-        if path:
-            if format == 'adjacency':
-                pd.DataFrame.from_dict(data, orient='index').to_csv(path)
-                logger.info(f"Graph exported in adjacency format to '{path}'.")
-            elif format == 'edge_list':
-                data.to_csv(path, index=False)
-                logger.info(f"Graph exported in edge list format to '{path}'.")
-        else:
-            return data
-
-    def graph_visual(self, graph: nx.Graph):
-        """
-        Visualizes the NetworkX graph with dynamic node and edge types.
-
-        Parameters:
-        - graph (nx.Graph): The NetworkX graph to visualize.
-        """
-        # Extract unique node types
-        node_types = set(data.get('type', 'default') for _, data in graph.nodes(data=True))
-        node_type_list = sorted(node_types)  # Sort for consistency
-
-        # Assign colors to node types using a colormap
-        cmap_nodes = cm.get_cmap('tab10', len(node_type_list))
-        node_type_color_map = {ntype: cmap_nodes(i) for i, ntype in enumerate(node_type_list)}
-
-        # Assign colors to nodes based on their type
-        node_colors = [node_type_color_map[data.get('type', 'default')] for _, data in graph.nodes(data=True)]
-
-        # Define node sizes based on node degree
-        degrees = dict(graph.degree())
-        max_degree = max(degrees.values()) if degrees else 1
-        node_sizes = [30 + (degrees[node] / max_degree) * 70 for node in graph.nodes()]  # Scale sizes between 300 and 1000
-
-        # Extract unique edge relationship types
-        edge_types = set(data.get('type', 'default') for _, _, data in graph.edges(data=True))
-        edge_type_list = sorted(edge_types)  # Sort for consistency
-
-        # Assign colors to edge types using a colormap
-        cmap_edges = cm.get_cmap('Set2', len(edge_type_list))
-        edge_type_color_map = {etype: cmap_edges(i) for i, etype in enumerate(edge_type_list)}
-
-        # Assign colors to edges based on their type
-        edge_colors = [edge_type_color_map[data.get('type', 'default')] for _, _, data in graph.edges(data=True)]
-
-        # Generate positions for all nodes using spring layout for better visualization
-        pos = nx.spring_layout(graph, seed=42, k=0.15, iterations=50)
-
-        plt.figure(figsize=(12, 8))
-        
-        # Draw nodes with dynamic colors and sizes
-        nx.draw_networkx_nodes(graph, pos, node_color=node_colors, node_size=node_sizes, alpha=0.9)
-
-        # Draw edges with dynamic colors
-        if self.graph_type == 'directed':
-            nx.draw_networkx_edges(graph, pos, edge_color=edge_colors, arrows=True, alpha=0.7, width=1.0)
-        else:
-            nx.draw_networkx_edges(graph, pos, edge_color=edge_colors, alpha=0.7, width=1.0)
-
-        # Optionally, draw labels (commented out for clarity)
-        # nx.draw_networkx_labels(graph, pos, font_size=8, font_family='sans-serif')
-
-        # Create legend for node types
-        node_patches = [mpatches.Patch(color=node_type_color_map[ntype], label=ntype) for ntype in node_type_list]
-
-        # Create legend for edge types
-        edge_patches = [mpatches.Patch(color=edge_type_color_map[etype], label=etype) for etype in edge_type_list]
-
-        # Combine legends
-        plt.legend(handles=node_patches + edge_patches, loc='upper right', bbox_to_anchor=(1.3, 1))
-
-        # Remove axis
-        plt.axis('off')
-
-        # Set title
-        plt.title("Graph Visualization", fontsize=15)
-
-        # Adjust layout to make room for legends
-        plt.tight_layout()
-
-        # Display the graph
-        plt.show()
-
-def main():
-
-    # Enhanced Sample DataFrame for a Social Network
-    df = pd.read_csv('prince-toronto.csv')
-    # Configuration Dictionary (Including 'features' Key)
-    config = {
-        "nodes": [
-            {
-                "id": "tweet_id",
-                "type": "Post",
-                "features": ["retweet_count", "lang"]
-            },
-            {
-                "id": "reply_to_tweet_id",  # Added node definition for reply_to_tweet_id
-                "type": "Post",
-                "features": ["retweet_count", "lang"]
-            },
-            {
-                "id": "user_id",
-                "type": "User",
-                "features": ["favorite_count", "user_friends_count"]
-            }
-        ],
-        "relationships": [
-            {
-                "source": "tweet_id",
-                "target": "reply_to_tweet_id",
-                "type": "replied",
-                "features": ["mentions", "hashtags"]
-            },
-            {
-                "source": "user_id",
-                "target": "tweet_id",
-                "type": "posted",
-                "features": ["geo"]
-            }
-        ]
-    }
-
-    # Initialize the DataFrameToGraph instance
-    df_to_graph = DataFrameToGraph(df, config, graph_type='directed')
-    # Retrieve the constructed graph
-    graph = df_to_graph.get_graph()
-
-    # Display nodes with attributes
-    print("Nodes:")
-    for node, attrs in graph.nodes(data=True):
-        print(node, attrs)
-
-    # Display edges with attributes
-    print("\nEdges:")
-    for source, target, key, attrs in graph.edges(keys=True, data=True):
-        print(f"{source} -> {target} [type={attrs.get('type')}, key={key}] {attrs}")
-
-    # Export the graph as an edge list CSV
-    df_to_graph.export_graph(format='edge_list', path='graph_edge_list.csv')
-
-    # Alternatively, get the adjacency dictionary
-    adjacency_dict = df_to_graph.export_graph(format='adjacency')
-    print("\nAdjacency Dictionary:")
-    print(adjacency_dict)
-
-    # Visualization Code Starts Here
-    # --------------------------------
-
-    # Visualize the graph
-    df_to_graph.graph_visual(graph)
-
-
-
-if __name__ == "__main__":
-    main()
 
 

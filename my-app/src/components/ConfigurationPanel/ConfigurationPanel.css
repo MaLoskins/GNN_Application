@@ -21,6 +21,39 @@
   line-height: 1.6;
 }
 
+.type-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.type-selector {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+.type-selector label {
+  margin-bottom: 5px;
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.type-selector select {
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background-color: var(--input-background);
+  color: var(--input-text-color);
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.type-selector select:focus {
+  border-color: var(--accent-color);
+}
+
 /* Submit Button */
 .config-section button {
   background-color: var(--button-background);
