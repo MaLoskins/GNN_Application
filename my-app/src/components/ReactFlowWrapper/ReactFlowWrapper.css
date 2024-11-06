@@ -1,17 +1,18 @@
 /* src/components/ReactFlowWrapper/ReactFlowWrapper.css */
 
 .wrapper {
-  height: 60vh; /* 60% of the viewport height */
-  width: 90%;
-  max-width: 1200px;
-  margin: 20px auto;
+  height: 50vh; /* Reduced height for compactness */
+  width: 100%;
+  max-width: 1000px; /* Reduced max-width */
+  margin: 15px auto; /* Reduced margin */
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 6px;
   background-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  position: relative; /* Ensures React Flow positions correctly */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Subtler shadow */
+  position: relative;
 }
 
+/* Responsive Adjustments */
 @media (max-width: 1200px) {
   .wrapper {
     width: 95%;
@@ -20,34 +21,44 @@
 
 @media (max-width: 768px) {
   .wrapper {
-    height: 50vh; /* Reduce height on smaller screens */
+    height: 40vh; /* Further reduced height on smaller screens */
   }
 }
 
 /* Node Styling */
+.react-flow__node.user {
+  background-color: var(--accent-color);
+  color: var(--button-text-color); /* White text */
+  border: 2px solid var(--button-hover);
+  font-weight: bold;
+}
+
+.react-flow__node.post {
+  background-color: #52c41a;
+  color: #ffffff;
+  border: 2px solid #389e0d;
+}
+
+/* Default node styling */
 .react-flow__node.default {
   background-color: var(--secondary-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
-  border-radius: 5px;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s, box-shadow 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .react-flow__node.default:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  transform: scale(1.02);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* Edge Styling */
 .react-flow__edge-path {
   stroke: var(--accent-color);
-  stroke-width: 2px;
+  stroke-width: 1.5px; /* Slightly thinner edges */
 }
 
 .react-flow__edge-arrowhead {

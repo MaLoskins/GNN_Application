@@ -195,8 +195,8 @@ function App() {
         type: 'default',
         data: { label: column },
         position: {
-          x: Math.random() * 600 - 300, // Random position for simplicity
-          y: Math.random() * 600 - 300,
+          x: Math.random() * 400 - 200, // Random position for simplicity
+          y: Math.random() * 400 - 200,
         },
       };
 
@@ -298,8 +298,8 @@ function App() {
 
   // Handle window resize for responsive graph
   const [dimensions, setDimensions] = useState({
-    width: window.innerWidth * 0.9, // Increased width to 90%
-    height: (window.innerWidth * 0.9) * (2 / 3), // Maintained 3:2 ratio
+    width: window.innerWidth * 0.9, // 90% width
+    height: (window.innerWidth * 0.9) * (2 / 3), // 3:2 ratio
   });
 
   useEffect(() => {

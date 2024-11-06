@@ -1,8 +1,9 @@
 // src/components/FileUploader/FileUploader.js
+
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
-import './FileUploader.css'; // Create this CSS file for styling
+import './FileUploader.css'; // Ensure correct path
 
 const FileUploader = ({ onFileDrop }) => {
   const onDrop = (acceptedFiles) => {
@@ -36,8 +37,8 @@ const FileUploader = ({ onFileDrop }) => {
         <input {...getInputProps()} />
         {
           isDragActive ?
-            <p>Drop the CSV file here ...</p> :
-            <p>Drag 'n' drop a CSV file here, or click to select file</p>
+            <p>Drop the CSV file here...</p> :
+            <p>Drag & drop a CSV file here, or click to select file</p>
         }
       </div>
     </div>
@@ -45,19 +46,3 @@ const FileUploader = ({ onFileDrop }) => {
 };
 
 export default FileUploader;
-
-/*
-Detailed Explanation:
-
-1. **Props Received:**
-   - `onFileDrop`: Function to handle the parsed CSV data and column headers.
-
-2. **File Parsing:**
-   - Uses `Papa.parse` to parse the uploaded CSV file.
-   - On successful parsing, it calls `onFileDrop` with the data and headers.
-   - Handles parsing errors gracefully.
-
-3. **Styling:**
-   - The `FileUploader.css` should style the dropzone area appropriately.
-*/
-

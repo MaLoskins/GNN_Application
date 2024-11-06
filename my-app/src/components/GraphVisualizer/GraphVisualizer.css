@@ -2,27 +2,36 @@
 
 .graph-section {
   text-align: center;
-  margin-top: 40px;
+  margin-top: 20px; /* Reduced margin */
 }
 
 .graph-section h2 {
   color: var(--accent-color);
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
 }
 
 .graph-container {
   width: 100%;
-  max-width: 1800px; /* Increased max-width for wider screens */
+  max-width: 1200px; /* Reduced max-width for compactness */
   margin: 0 auto;
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 6px; /* Reduced border-radius */
   overflow: hidden;
   background-color: var(--primary-color);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  aspect-ratio: 3 / 2; /* Ensures a 3:2 aspect ratio */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtler shadow */
+  aspect-ratio: 4 / 3; /* Adjusted aspect ratio for better fit */
 }
 
 /* ForceGraph2D Styling */
 .graph-section canvas {
   background-color: var(--primary-color) !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .graph-container {
+    max-width: 100%;
+    aspect-ratio: 3 / 2;
+  }
 }

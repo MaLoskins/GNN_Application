@@ -1,482 +1,3 @@
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/api.js:
-// my-app/src/api.js
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
-export const getRoot = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const processData = async (data, config) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/process-data`, { data, config });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-
-
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/App.css:
-/* src/App.css */
-
-/* CSS Variables for Dark Mode */
-:root {
-  --background-color: #121212;
-  --primary-color: #1f1f1f;
-  --secondary-color: #1e1e1e;
-  --accent-color: #bb86fc;
-  --text-color: #ffffff;
-  --secondary-text-color: #bbbbbb;
-  --border-color: #333333;
-  --button-background: #bb86fc;
-  --button-hover: #985eff;
-  --modal-background: #1f1f1f;
-  --dropzone-border: #444444;
-  --dropzone-background: #1f1f1f;
-  --input-background: #2c2c2c;
-  --input-text-color: #ffffff;
-  --select-background: #2c2c2c;
-  --select-text-color: #ffffff;
-}
-
-/* Global Styles */
-body {
-  margin: 0;
-  padding: 0;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.App {
-  text-align: center;
-  padding: 20px;
-}
-
-h1 {
-  color: var(--accent-color);
-  margin-bottom: 30px;
-}
-
-/* Other global styles can remain here */
-
-
-
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/App.js:
-// src/App.js
-import React, { useState, useEffect } from 'react';
-import { processData } from './api';
-import { 
-  ReactFlowProvider, 
-  addEdge, 
-  useNodesState, 
-  useEdgesState 
-} from 'react-flow-renderer'; // Named Imports
-import FileUploader from './components/FileUploader/FileUploader';
-import ConfigurationPanel from './components/ConfigurationPanel/ConfigurationPanel';
-import GraphVisualizer from './components/GraphVisualizer/GraphVisualizer';
-import RelationshipModal from './components/RelationshipModal/RelationshipModal';
-import ReactFlowWrapper from './components/ReactFlowWrapper/ReactFlowWrapper'; // Import the new component
-import NodeEditModal from './components/NodeEditModal/NodeEditModal'; // Import the new component
-import './App.css';
-import 'react-flow-renderer/dist/style.css'; // Import React Flow's default styles
-
-function App() {
-  const [csvData, setCsvData] = useState([]);
-  const [columns, setColumns] = useState([]);
-  const [config, setConfig] = useState({ nodes: [], relationships: [], graph_type: 'directed' });
-  const [graphData, setGraphData] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  // Initialize nodes and edges using hooks
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-  // Modal States for Relationships
-  const [relationshipModalIsOpen, setRelationshipModalIsOpen] = useState(false);
-  const [currentEdge, setCurrentEdge] = useState(null);
-
-  // Modal States for Node Editing
-  const [nodeEditModalIsOpen, setNodeEditModalIsOpen] = useState(false);
-  const [currentNode, setCurrentNode] = useState(null);
-
-  // Handle file drop
-  const handleFileDrop = (data, fields) => {
-    setCsvData(data);
-    setColumns(fields);
-    initializeConfig(fields);
-    initializeReactFlow(fields);
-  };
-
-  // Initialize config with selectable nodes
-  const initializeConfig = (fields) => {
-    setConfig({
-      nodes: [], // Initially no nodes are selected
-      relationships: [],
-      graph_type: 'directed', // You can change this to 'undirected' if needed
-    });
-  };
-
-  // Initialize React Flow nodes with grid layout (only selected nodes will appear)
-  const initializeReactFlow = (fields) => {
-    // Initially, no nodes are selected, so ReactFlow will render empty
-    setNodes([]);
-    setEdges([]);
-  };
-
-  // Handle relationship submission
-  const handleSaveRelationship = ({ relationshipType, relationshipFeatures }) => {
-    if (!relationshipType) {
-      alert('Please enter a relationship type.');
-      return;
-    }
-
-    // Update config.relationships using functional updater to access previous state
-    setConfig((prevConfig) => {
-      const newRelationship = {
-        source: currentEdge.source,
-        target: currentEdge.target,
-        type: relationshipType,
-        features: relationshipFeatures,
-      };
-
-      // Create the new edge with data
-      const edgeWithData = {
-        ...currentEdge,
-        type: 'smoothstep', // You can choose any edge type you prefer   
-        
-        animated: prevConfig.graph_type === 'directed',
-        arrowHeadType: prevConfig.graph_type === 'directed' ? 'arrowclosed' : 'none',
-        label: relationshipType,
-        data: { type: relationshipType, features: relationshipFeatures },
-      };
-
-      // Add the new relationship to the config
-      const updatedConfig = {
-        ...prevConfig,
-        relationships: [...prevConfig.relationships, newRelationship],
-      };
-
-      // Update edges state
-      setEdges((eds) => addEdge(edgeWithData, eds));
-
-      return updatedConfig;
-    });
-
-    // Reset modal state
-    setRelationshipModalIsOpen(false);
-    setCurrentEdge(null);
-  };
-
-  // Handle edge creation
-  const onConnectHandler = (params) => {
-    setCurrentEdge(params);
-    setRelationshipModalIsOpen(true);
-  };
-
-  // Handle node click for editing
-  const onNodeClickHandler = (node) => {
-    setCurrentNode(node);
-    setNodeEditModalIsOpen(true);
-  };
-
-  // Handle node type and feature updates
-  const handleSaveNodeEdit = ({ nodeType, nodeFeatures }) => {
-    if (!nodeType) {
-      alert('Please enter a node type.');
-      return;
-    }
-
-    // Update config.nodes using functional updater
-    setConfig((prevConfig) => {
-      const updatedNodes = prevConfig.nodes.map((n) => {
-        if (n.id === currentNode.id) {
-          return {
-            ...n,
-            type: nodeType,
-            features: nodeFeatures,
-          };
-        }
-        return n;
-      });
-
-      return {
-        ...prevConfig,
-        nodes: updatedNodes,
-      };
-    });
-
-    // Update React Flow node data
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === currentNode.id) {
-          return {
-            ...node,
-            type: nodeType,
-            data: { ...node.data, label: `${node.data.label} (${nodeType})` },
-          };
-        }
-        return node;
-      })
-    );
-
-    // Reset modal state
-    setNodeEditModalIsOpen(false);
-    setCurrentNode(null);
-  };
-
-  // Handle node selection for inclusion as a node in the graph
-  const handleSelectNode = (column) => {
-    // Check if the column is already selected as a node
-    const isSelected = config.nodes.find((n) => n.id === column);
-
-    if (isSelected) {
-      // If already selected, remove it
-      setConfig((prevConfig) => ({
-        ...prevConfig,
-        nodes: prevConfig.nodes.filter((n) => n.id !== column),
-      }));
-
-      // Remove from React Flow
-      setNodes((nds) => nds.filter((n) => n.id !== column));
-
-      // Optionally, remove related edges
-      setEdges((eds) => eds.filter((e) => e.source !== column && e.target !== column));
-    } else {
-      // If not selected, add it with default type
-      setConfig((prevConfig) => ({
-        ...prevConfig,
-        nodes: [...prevConfig.nodes, { id: column, type: 'default', features: [] }],
-      }));
-
-      // Add to React Flow with default type and position
-      const newNode = {
-        id: column,
-        type: 'default',
-        data: { label: column },
-        position: {
-          x: Math.random() * 600 - 300, // Random position for simplicity
-          y: Math.random() * 600 - 300,
-        },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-    }
-  };
-
-  // Handle form submission
-  const handleSubmit = async () => {
-    // Basic validation
-    for (let node of config.nodes) {
-      if (!node.id) {
-        alert('Please select an ID column for all nodes.');
-        return;
-      }
-      if (!node.type || node.type === 'default') { // Ensure type is specified
-        alert(`Please specify a valid type for node '${node.id}'.`);
-        return;
-      }
-    }
-    for (let rel of config.relationships) {
-      if (!rel.source || !rel.target) {
-        alert('Please select source and target columns for all relationships.');
-        return;
-      }
-      if (!rel.type || rel.type === 'default') { // Ensure relationship type is specified
-        alert('Please specify a valid type for all relationships.');
-        return;
-      }
-    }
-
-    setLoading(true);
-    try {
-      const response = await processData(csvData, config);
-      const receivedGraph = response.graph;
-
-      // Compute node degrees
-      const degrees = {};
-      receivedGraph.links.forEach((link) => {
-        if (receivedGraph.directed) {
-          degrees[link.source] = (degrees[link.source] || 0) + 1; // Out-degree
-          degrees[link.target] = (degrees[link.target] || 0) + 1; // In-degree
-        } else {
-          degrees[link.source] = (degrees[link.source] || 0) + 1;
-          degrees[link.target] = (degrees[link.target] || 0) + 1;
-        }
-      });
-
-      // Assign degree to nodes
-      const nodesWithSize = receivedGraph.nodes.map((node) => ({
-        ...node,
-        val: degrees[node.id] || 1, // Default size if degree is 0
-      }));
-
-      const updatedGraphData = {
-        ...receivedGraph,
-        nodes: nodesWithSize,
-      };
-
-      setGraphData(updatedGraphData);
-    } catch (error) {
-      console.error('Error processing data:', error);
-      alert('Error processing data. Check console for details.');
-    }
-    setLoading(false);
-  };
-
-  // Handle window resize for responsive graph
-  const [dimensions, setDimensions] = useState({
-    width: window.innerWidth * 0.9, // Increased width to 90%
-    height: (window.innerWidth * 0.9) * (2 / 3), // Maintained 3:2 ratio
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      setDimensions({
-        width: window.innerWidth * 0.9, // 90% width
-        height: (window.innerWidth * 0.9) * (2 / 3), // 3:2 ratio
-      });
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Update config.nodes whenever nodes state changes (e.g., after node edits)
-  useEffect(() => {
-    if (columns.length === 0) return;
-    setConfig((prevConfig) => ({
-      ...prevConfig,
-      nodes: nodes.map((node) => ({
-        id: node.id,
-        type: node.type || 'default',
-        features: prevConfig.nodes.find((n) => n.id === node.id)?.features || [],
-      })),
-    }));
-  }, [nodes, columns]);
-
-  return (
-    <ReactFlowProvider>
-      <div className="App">
-        <h1>CSV to Graph Application</h1>
-
-        {/* CSV Upload Section */}
-        <FileUploader onFileDrop={handleFileDrop} />
-
-        {/* Configuration Section for Selecting Nodes and Relationships */}
-        {columns.length > 0 && (
-          <ConfigurationPanel
-            columns={columns}
-            onSelectNode={handleSelectNode}
-            onSubmit={handleSubmit}
-            loading={loading}
-            selectedNodes={config.nodes.map((n) => n.id)}
-          />
-        )}
-
-        {/* React Flow Configurator */}
-        {columns.length > 0 && (
-          <ReactFlowWrapper
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnectHandler}
-            onNodeClick={onNodeClickHandler} // Pass node click handler
-          />
-        )}
-
-        {/* Graph Visualization Section */}
-        {graphData && (
-          <GraphVisualizer graphData={graphData} dimensions={dimensions} />
-        )}
-
-        {/* Relationship Modal */}
-        <RelationshipModal
-          isOpen={relationshipModalIsOpen}
-          onRequestClose={() => setRelationshipModalIsOpen(false)}
-          columns={columns}
-          onSaveRelationship={handleSaveRelationship}
-        />
-
-        {/* Node Edit Modal */}
-        {currentNode && (
-          <NodeEditModal
-            isOpen={nodeEditModalIsOpen}
-            onRequestClose={() => setNodeEditModalIsOpen(false)}
-            node={currentNode}
-            onSaveNodeEdit={handleSaveNodeEdit}
-          />
-        )}
-      </div>
-    </ReactFlowProvider>
-  );
-}
-
-export default App;
-
-/*
-Detailed Explanation:
-
-1. **Selective Node Inclusion:**
-   - **`handleSelectNode`**: This function toggles the selection of a column as a node. If the column is already selected, it removes it; otherwise, it adds it with a default type.
-   - **`ConfigurationPanel`**: Updated to include node selection UI (see the next section).
-
-2. **Dynamic Validation:**
-   - The `handleSubmit` function now only validates node types for columns selected as nodes.
-   - Previously, all columns were treated as nodes with default types, leading to validation errors for unselected nodes.
-
-3. **Integration with `ReactFlowWrapper`:**
-   - **`onNodeClickHandler`**: Handles the event when a node is clicked, opening the `NodeEditModal` for dynamic editing.
-
-4. **State Management:**
-   - **`config.nodes`**: Now only includes columns selected as nodes.
-   - **`config.relationships`**: Manages relationships defined via `RelationshipModal`.
-   - **`nodes` and `edges`**: Managed by React Flow hooks.
-
-5. **UI Components:**
-   - **`NodeEditModal`**: Allows dynamic editing of node types and features directly within the graph.
-
-6. **Initial ReactFlow Nodes:**
-   - Initially, no nodes are selected; nodes are added by the user via the `ConfigurationPanel`.
-
-7. **Edge Handling:**
-   - Only edges between selected nodes are allowed. You might need to enforce this in the `RelationshipModal` or during processing.
-
-8. **Responsive Design:**
-   - The `dimensions` state ensures the graph remains responsive to window resizing.
-
-9. **Assumptions:**
-   - The `ConfigurationPanel` now includes node selection capabilities (see the next section).
-   - The `NodeEditModal` component allows dynamic editing of node types and features.
-
-10. **Backend Synchronization:**
-    - The `processData` function sends the updated `config` to the backend, which now only includes selected nodes with their respective types and features.
-
-*/
-
-
-
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/App.test.js:
-import { render, screen } from '@testing-library/react';
-import App from './App';
-
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
-});
-
-
-
 C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/ConfigurationPanel/ConfigurationPanel.css:
 /* src/components/ConfigurationPanel/ConfigurationPanel.css */
 
@@ -606,6 +127,722 @@ Detailed Explanation:
 
 */
 
+
+
+
+C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/FeatureSpaceCreatorTab/FeatureSpaceCreatorTab.css:
+/* src/components/FeatureSpaceCreatorTab/FeatureSpaceCreatorTab.css */
+
+.feature-space-creator-tab {
+    padding: 20px;
+    background-color: var(--primary-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feature-space-creator-tab h2 {
+    color: var(--accent-color);
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+  
+  .feature-space-creator-tab form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .feature-config {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 800px;
+    position: relative;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  .feature-config h3 {
+    margin-top: 0;
+    color: var(--accent-color);
+    font-size: 1.5rem;
+  }
+  
+  .remove-feature-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .remove-feature-button:hover {
+    background-color: #ff7875;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    width: 100%;
+  }
+  
+  .form-group label {
+    margin-bottom: 5px;
+    color: var(--text-color);
+    font-weight: 500;
+  }
+  
+  .form-group input,
+  .form-group select {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--input-background);
+    color: var(--input-text-color);
+    font-size: 1rem;
+    transition: border-color 0.3s, background-color 0.3s;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--accent-color);
+    outline: none;
+  }
+  
+  .add-feature-button {
+    background-color: var(--button-background);
+    color: var(--button-text-color);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+    margin-bottom: 20px;
+  }
+  
+  .add-feature-button:hover {
+    background-color: var(--button-hover);
+  }
+  
+  .submit-button {
+    background-color: var(--accent-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s;
+    margin-bottom: 20px;
+  }
+  
+  .submit-button:hover {
+    background-color: #985eff;
+  }
+  
+  .submit-button:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+  }
+  
+  /* Feature Space Summary */
+  .feature-space-summary {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    margin-top: 30px;
+    border-radius: 8px;
+    text-align: left;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  .feature-space-summary h3 {
+    color: var(--accent-color);
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+  }
+  
+  /* Metrics Section */
+  .metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .metric {
+    background-color: var(--primary-color);
+    padding: 15px 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    flex: 1 1 200px;
+  }
+  
+  .metric-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 5px;
+  }
+  
+  .metric-value {
+    display: block;
+    font-size: 1.2rem;
+    color: var(--text-color);
+  }
+  
+  /* Feature Summary Table */
+  .feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .feature-table th,
+  .feature-table td {
+    border: 1px solid var(--border-color);
+    padding: 12px 15px;
+    text-align: left;
+  }
+  
+  .feature-table th {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-weight: 600;
+  }
+  
+  .feature-table tbody tr:nth-child(even) {
+    background-color: var(--input-background);
+  }
+  
+  .feature-table tbody tr:hover {
+    background-color: var(--border-color);
+  }
+  
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.9rem;
+  }
+  
+  /* Download Section */
+  .download-section {
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  .download-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: var(--link-color);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .download-link:hover {
+    color: var(--button-hover);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .metrics {
+      flex-direction: column;
+    }
+  
+    .feature-table th,
+    .feature-table td {
+      padding: 8px 10px;
+    }
+  
+    .feature-space-summary h3 {
+      font-size: 1.5rem;
+    }
+  }
+  
+  /* New CSS for Embedding Shape Column (Optional) */
+  
+  /* Ensure that the new Embedding Shape column has adequate width */
+  .feature-table th:nth-child(5),
+  .feature-table td:nth-child(5) {
+    width: 150px; /* Adjust as needed */
+  }
+
+
+
+C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/components/FeatureSpaceCreatorTab/FeatureSpaceCreatorTab.js:
+// src/components/FeatureSpaceCreatorTab/FeatureSpaceCreatorTab.js
+
+import React, { useState } from 'react';
+import './FeatureSpaceCreatorTab.css';
+
+function FeatureSpaceCreatorTab({ csvData, columns, onSubmit, loading, featureSpaceData }) {
+  const [features, setFeatures] = useState([
+    {
+      column_name: '',
+      type: 'text', // 'text' or 'numeric'
+      // Text feature options
+      embedding_method: 'bert', // 'bert', 'glove', 'word2vec'
+      embedding_dim: 768,
+      dim_reduction_method: 'none', // 'none', 'pca', 'umap'
+      dim_reduction_target_dim: 100,
+      // Numeric feature options
+      data_type: 'float', // 'int' or 'float'
+      processing: 'none', // 'none', 'standardize', 'normalize'
+      projection_method: 'none', // 'none', 'linear'
+      projection_target_dim: 1,
+    },
+  ]);
+
+  const handleFeatureChange = (index, field, value) => {
+    const updatedFeatures = [...features];
+    updatedFeatures[index][field] = value;
+    setFeatures(updatedFeatures);
+  };
+
+  const handleAddFeature = () => {
+    setFeatures([
+      ...features,
+      {
+        column_name: '',
+        type: 'text',
+        embedding_method: 'bert',
+        embedding_dim: 768,
+        dim_reduction_method: 'none',
+        dim_reduction_target_dim: 100,
+        data_type: 'float',
+        processing: 'none',
+        projection_method: 'none',
+        projection_target_dim: 1,
+      },
+    ]);
+  };
+
+  const handleRemoveFeature = (index) => {
+    const updatedFeatures = [...features];
+    updatedFeatures.splice(index, 1);
+    setFeatures(updatedFeatures);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validation: Ensure all required fields are filled
+    for (let i = 0; i < features.length; i++) {
+      const feature = features[i];
+      if (!feature.column_name) {
+        alert(`Feature ${i + 1}: Please select a column.`);
+        return;
+      }
+
+      if (feature.type === 'text') {
+        if (!feature.embedding_method) {
+          alert(`Feature ${i + 1}: Please select an embedding method.`);
+          return;
+        }
+        if (feature.dim_reduction_method !== 'none' && !feature.dim_reduction_target_dim) {
+          alert(`Feature ${i + 1}: Please specify a target dimension for dimensionality reduction.`);
+          return;
+        }
+      }
+
+      if (feature.type === 'numeric') {
+        if (!feature.data_type) {
+          alert(`Feature ${i + 1}: Please select a data type.`);
+          return;
+        }
+        if (feature.processing !== 'none' && !feature.processing) {
+          alert(`Feature ${i + 1}: Please select a processing method.`);
+          return;
+        }
+        if (feature.projection_method !== 'none' && !feature.projection_target_dim) {
+          alert(`Feature ${i + 1}: Please specify a target dimension for projection.`);
+          return;
+        }
+      }
+    }
+
+    // Prepare configuration object
+    const config = {
+      features: features.map((feature) => {
+        const { column_name, type } = feature;
+        const featureConfig = {
+          column_name,
+          type,
+        };
+        if (type === 'text') {
+          featureConfig.embedding_method = feature.embedding_method;
+          featureConfig.embedding_dim = parseInt(feature.embedding_dim, 10);
+          if (feature.dim_reduction_method !== 'none') {
+            featureConfig.dim_reduction = {
+              method: feature.dim_reduction_method,
+              target_dim: parseInt(feature.dim_reduction_target_dim, 10),
+            };
+          }
+        }
+        if (type === 'numeric') {
+          featureConfig.data_type = feature.data_type;
+          featureConfig.processing = feature.processing;
+          if (feature.projection_method !== 'none') {
+            featureConfig.projection = {
+              method: feature.projection_method,
+              target_dim: parseInt(feature.projection_target_dim, 10),
+            };
+          }
+        }
+        return featureConfig;
+      }),
+      multi_graph_settings: {
+        embedding_shapes: features.reduce((acc, feature) => {
+          if (feature.type === 'text') {
+            acc[feature.column_name] = feature.dim_reduction_method !== 'none'
+              ? parseInt(feature.dim_reduction_target_dim, 10)
+              : parseInt(feature.embedding_dim, 10);
+          }
+          if (feature.type === 'numeric') {
+            acc[feature.column_name] = feature.projection_method !== 'none'
+              ? parseInt(feature.projection_target_dim, 10)
+              : 1;
+          }
+          return acc;
+        }, {})
+      }
+    };
+
+    // Submit the configuration and data to the backend
+    onSubmit(config);
+  };
+
+  // Helper function to calculate total embedding dimensions
+  const calculateTotalDimensions = () => {
+    if (!featureSpaceData || !featureSpaceData.multi_graph_settings || !featureSpaceData.multi_graph_settings.embedding_shapes) return 0;
+    const shapes = featureSpaceData.multi_graph_settings.embedding_shapes;
+    return Object.values(shapes).reduce((acc, dim) => acc + dim, 0);
+  };
+
+  // Helper function to count feature types
+  const countFeatureTypes = () => {
+    if (!featureSpaceData || !featureSpaceData.features) return { text: 0, numeric: 0 };
+    const features = featureSpaceData.features;
+    let text = 0;
+    let numeric = 0;
+    features.forEach((feature) => {
+      if (feature.type === 'text') text += 1;
+      if (feature.type === 'numeric') numeric += 1;
+    });
+    return { text, numeric };
+  };
+
+  // Define color schemes for different types and methods
+  const typeColors = {
+    text: '#1890ff',
+    numeric: '#52c41a',
+  };
+
+  const methodColors = {
+    bert: '#faad14',
+    glove: '#eb2f96',
+    word2vec: '#13c2c2',
+  };
+
+  return (
+    <div className="feature-space-creator-tab">
+      <h2>Feature Space Creator</h2>
+      <form onSubmit={handleSubmit}>
+        {features.map((feature, index) => (
+          <div key={index} className="feature-config">
+            <h3>Feature {index + 1}</h3>
+            {features.length > 1 && (
+              <button 
+                type="button" 
+                onClick={() => handleRemoveFeature(index)} 
+                className="remove-feature-button"
+              >
+                Remove Feature
+              </button>
+            )}
+            <div className="form-group">
+              <label>Column Name:</label>
+              <select
+                value={feature.column_name}
+                onChange={(e) => handleFeatureChange(index, 'column_name', e.target.value)}
+                required
+              >
+                <option value="">Select Column</option>
+                {columns.map((col, idx) => (
+                  <option key={idx} value={col}>{col}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Type:</label>
+              <select
+                value={feature.type}
+                onChange={(e) => handleFeatureChange(index, 'type', e.target.value)}
+                required
+              >
+                <option value="text">Text</option>
+                <option value="numeric">Numeric</option>
+              </select>
+            </div>
+
+            {feature.type === 'text' && (
+              <>
+                <div className="form-group">
+                  <label>Embedding Method:</label>
+                  <select
+                    value={feature.embedding_method}
+                    onChange={(e) => handleFeatureChange(index, 'embedding_method', e.target.value)}
+                    required
+                  >
+                    <option value="bert">BERT</option>
+                    <option value="glove">GloVe</option>
+                    <option value="word2vec">Word2Vec</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Embedding Dimension:</label>
+                  <input
+                    type="number"
+                    value={feature.embedding_dim}
+                    onChange={(e) => handleFeatureChange(index, 'embedding_dim', e.target.value)}
+                    min="1"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Dimensionality Reduction:</label>
+                  <select
+                    value={feature.dim_reduction_method}
+                    onChange={(e) => handleFeatureChange(index, 'dim_reduction_method', e.target.value)}
+                  >
+                    <option value="none">None</option>
+                    <option value="pca">PCA</option>
+                    <option value="umap">UMAP</option>
+                  </select>
+                </div>
+
+                {feature.dim_reduction_method !== 'none' && (
+                  <div className="form-group">
+                    <label>Target Dimension:</label>
+                    <input
+                      type="number"
+                      value={feature.dim_reduction_target_dim}
+                      onChange={(e) => handleFeatureChange(index, 'dim_reduction_target_dim', e.target.value)}
+                      min="1"
+                      required
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
+            {feature.type === 'numeric' && (
+              <>
+                <div className="form-group">
+                  <label>Data Type:</label>
+                  <select
+                    value={feature.data_type}
+                    onChange={(e) => handleFeatureChange(index, 'data_type', e.target.value)}
+                    required
+                  >
+                    <option value="float">Float</option>
+                    <option value="int">Integer</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Processing:</label>
+                  <select
+                    value={feature.processing}
+                    onChange={(e) => handleFeatureChange(index, 'processing', e.target.value)}
+                  >
+                    <option value="none">None</option>
+                    <option value="standardize">Standardize</option>
+                    <option value="normalize">Normalize</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Projection:</label>
+                  <select
+                    value={feature.projection_method}
+                    onChange={(e) => handleFeatureChange(index, 'projection_method', e.target.value)}
+                  >
+                    <option value="none">None</option>
+                    <option value="linear">Linear</option>
+                  </select>
+                </div>
+
+                {feature.projection_method !== 'none' && (
+                  <div className="form-group">
+                    <label>Target Dimension:</label>
+                    <input
+                      type="number"
+                      value={feature.projection_target_dim}
+                      onChange={(e) => handleFeatureChange(index, 'projection_target_dim', e.target.value)}
+                      min="1"
+                      required
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        ))}
+
+        <button type="button" onClick={handleAddFeature} className="add-feature-button">
+          Add Feature
+        </button>
+
+        <button type="submit" className="submit-button" disabled={loading}>
+          {loading ? 'Processing...' : 'Create Feature Space'}
+        </button>
+      </form>
+
+      {/* Display Feature Space Statistics and Summary */}
+      {featureSpaceData && (
+        <div className="feature-space-summary">
+          <h3>Feature Space Summary</h3>
+
+          {/* Metrics Section */}
+          <div className="metrics">
+            <div className="metric">
+              <span className="metric-label">Total Features:</span>
+              <span className="metric-value">{featureSpaceData.features.length}</span>
+            </div>
+            <div className="metric">
+              <span className="metric-label">Total Embedding Dimensions:</span>
+              <span className="metric-value">{calculateTotalDimensions()}</span>
+            </div>
+            <div className="metric">
+              <span className="metric-label">Text Features:</span>
+              <span className="metric-value">{countFeatureTypes().text}</span>
+            </div>
+            <div className="metric">
+              <span className="metric-label">Numeric Features:</span>
+              <span className="metric-value">{countFeatureTypes().numeric}</span>
+            </div>
+          </div>
+
+          {/* Feature Summary Table */}
+          <table className="feature-table">
+            <thead>
+              <tr>
+                <th>Column Name</th>
+                <th>Type</th>
+                <th>Embedding Method</th>
+                <th>Embedding Dimension</th>
+                <th>Embedding Shape</th> {/* New Column */}
+                <th>Dimensionality Reduction</th>
+                <th>Processing</th>
+              </tr>
+            </thead>
+            <tbody>
+              {featureSpaceData.features && featureSpaceData.features.length > 0 ? (
+                featureSpaceData.features.map((feature, idx) => {
+                  // Retrieve the embedding shape from multi_graph_settings
+                  const embeddingShape = featureSpaceData.multi_graph_settings.embedding_shapes
+                    ? featureSpaceData.multi_graph_settings.embedding_shapes[feature.column_name]
+                    : 'N/A';
+
+                  return (
+                    <tr key={idx}>
+                      <td>{feature.column_name}</td>
+                      <td>
+                        <span 
+                          className="badge" 
+                          style={{ backgroundColor: typeColors[feature.type] || '#ccc' }}
+                        >
+                          {feature.type.charAt(0).toUpperCase() + feature.type.slice(1)}
+                        </span>
+                      </td>
+                      <td>
+                        {feature.type === 'text' ? (
+                          <span 
+                            className="badge" 
+                            style={{ backgroundColor: methodColors[feature.embedding_method] || '#ccc' }}
+                          >
+                            {feature.embedding_method.charAt(0).toUpperCase() + feature.embedding_method.slice(1)}
+                          </span>
+                        ) : (
+                          'N/A'
+                        )}
+                      </td>
+                      <td>
+                        {feature.type === 'text' 
+                          ? feature.embedding_dim 
+                          : feature.data_type === 'float' 
+                            ? 'Float' 
+                            : 'Int'}
+                      </td>
+                      <td>
+                        {embeddingShape !== 'N/A' 
+                          ? `(${embeddingShape})` 
+                          : 'N/A'}
+                      </td>
+                      <td>
+                        {feature.type === 'text' && feature.dim_reduction ? (
+                          `${feature.dim_reduction.method.toUpperCase()} (${feature.dim_reduction.target_dim})`
+                        ) : (
+                          'N/A'
+                        )}
+                      </td>
+                      <td>
+                        {feature.type === 'numeric' ? (
+                          feature.processing.charAt(0).toUpperCase() + feature.processing.slice(1)
+                        ) : (
+                          'N/A'
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
+                    No features available.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* Download Option */}
+          <div className="download-section">
+            <a 
+              href={`data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(featureSpaceData))}`} 
+              download="feature_space.json"
+              className="download-link"
+            >
+              Download Feature Space JSON
+            </a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default FeatureSpaceCreatorTab;
 
 
 
@@ -1495,70 +1732,6 @@ The `RelationshipModal` is integral for defining how different data entities int
 
 */
 
-
-
-
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/index.css:
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-
-
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/index.js:
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals(console.log);
-
-
-
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/reportWebVitals.js:
-const reportWebVitals = onPerfEntry => {
-  if (onPerfEntry && onPerfEntry instanceof Function) {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(onPerfEntry);
-      getFID(onPerfEntry);
-      getFCP(onPerfEntry);
-      getLCP(onPerfEntry);
-      getTTFB(onPerfEntry);
-    });
-  }
-};
-
-export default reportWebVitals;
-
-
-
-C:/Users/matth/Desktop/1-DSM/Research/REACT-BUILD/my-app/src/setupTests.js:
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
 
 
 

@@ -1,4 +1,5 @@
 // src/components/ReactFlowWrapper/ReactFlowWrapper.js
+
 import React from 'react';
 import ReactFlow, { Background, Controls } from 'react-flow-renderer';
 import './ReactFlowWrapper.css'; 
@@ -30,27 +31,3 @@ const ReactFlowWrapper = ({ nodes, edges, onNodesChange, onEdgesChange, onConnec
 };
 
 export default ReactFlowWrapper;
-
-/*
-Detailed Explanation:
-
-1. **Props Received:**
-   - `nodes`: Array of node objects.
-   - `edges`: Array of edge objects.
-   - `onNodesChange`: Handler for node state changes.
-   - `onEdgesChange`: Handler for edge state changes.
-   - `onConnect`: Handler for creating new connections (edges).
-   - `onNodeClick`: Handler for node click events to open the edit modal.
-
-2. **Handling Node Clicks:**
-   - **`handleNodeClick`**: Invoked when a node is clicked. It calls the `onNodeClick` prop with the clicked node as an argument.
-
-3. **ReactFlow Components:**
-   - **`Background`**: Adds a grid background to the flow diagram.
-   - **`Controls`**: Provides zoom and pan controls.
-
-4. **Styling:**
-   - Ensure that `ReactFlowWrapper.css` styles the wrapper appropriately. Here's an example:
-
-
-*/

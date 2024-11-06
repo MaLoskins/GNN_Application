@@ -1,7 +1,8 @@
 // src/components/NodeEditModal/NodeEditModal.js
+
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import './NodeEditModal.css'; // Create this CSS file for styling
+import './NodeEditModal.css'; // Ensure correct path
 
 Modal.setAppElement('#root'); // For accessibility
 
@@ -11,16 +12,20 @@ const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit }) => {
   const [availableFeatures, setAvailableFeatures] = useState([]);
 
   useEffect(() => {
-    // Dynamically generate available features based on CSV data or other logic
-    // For simplicity, using a static list here
-    setAvailableFeatures([
-      'feature1',
-      'feature2',
-      'feature3',
-      'feature4',
-      'feature5',
-    ]);
-  }, [node]);
+    if (isOpen) {
+      // Dynamically generate available features based on CSV data or other logic
+      // For simplicity, using a static list here
+      setAvailableFeatures([
+        'feature1',
+        'feature2',
+        'feature3',
+        'feature4',
+        'feature5',
+      ]);
+      setNodeType(node.type || '');
+      setNodeFeatures(node.features || []);
+    }
+  }, [isOpen, node]);
 
   const handleFeatureChange = (e) => {
     const { value, checked } = e.target;
@@ -101,29 +106,3 @@ const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit }) => {
 };
 
 export default NodeEditModal;
-
-/*
-Detailed Explanation:
-
-1. **Props Received:**
-   - `isOpen`: Boolean indicating whether the modal is open.
-   - `onRequestClose`: Function to close the modal.
-   - `node`: The node object that is being edited.
-   - `onSaveNodeEdit`: Function to handle saving the edited node details.
-
-2. **State Variables:**
-   - `nodeType`: Holds the current type of the node.
-   - `nodeFeatures`: Holds the current list of features associated with the node.
-   - `availableFeatures`: List of possible features users can assign to the node.
-
-3. **Dynamic Features:**
-   - **`handleAddFeature`**: Allows users to add new features dynamically if the existing list doesn't suffice.
-
-4. **Form Handling:**
-   - **`handleSubmit`**: Validates input and invokes `onSaveNodeEdit` with the updated type and features.
-   - **`handleFeatureChange`**: Manages the selection and deselection of features.
-
-5. **Styling:**
-   - The modal uses CSS classes like `node-edit-modal`, `overlay`, `form-group`, `features-list`, `feature-item`, `add-feature-button`, and `modal-buttons` for styling. You need to create `NodeEditModal.css` to style these appropriately.
-
-*/

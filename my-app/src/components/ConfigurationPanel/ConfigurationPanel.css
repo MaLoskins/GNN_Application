@@ -2,30 +2,26 @@
 
 .config-section {
   text-align: left;
-  max-width: 1200px; /* Increased max-width for wider screens */
-  margin: 20px auto;
-  padding: 25px;
+  max-width: 800px; /* Reduced max-width for compactness */
+  margin: 10px auto; /* Reduced margin */
+  padding: 15px; /* Reduced padding */
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 8px; /* Slightly reduced border-radius */
   background-color: var(--primary-color);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Reduced shadow */
 }
 
 .config-section h2 {
   margin-top: 0;
   color: var(--accent-color);
-}
-
-.config-section p {
-  color: var(--secondary-text-color);
-  line-height: 1.6;
+  font-size: 1.5rem; /* Standardized font size */
 }
 
 .node-selection {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 10px; /* Reduced gap */
+  margin-bottom: 15px; /* Reduced margin */
 }
 
 .node-selector {
@@ -34,7 +30,7 @@
 }
 
 .node-selector input {
-  margin-right: 10px;
+  margin-right: 8px; /* Reduced margin */
   width: 16px;
   height: 16px;
 }
@@ -42,26 +38,26 @@
 .node-selector label {
   cursor: pointer;
   color: var(--text-color);
+  font-size: 0.95rem; /* Slightly smaller font */
 }
 
-/* Submit Button */
 .config-section button {
   background-color: var(--button-background);
-  color: var(--text-color);
+  color: var(--button-text-color); /* Use button-text-color variable */
   border: none;
-  padding: 12px 20px;
-  border-radius: 5px;
+  padding: 10px 18px; /* Reduced padding */
+  border-radius: 4px; /* Reduced border-radius */
   cursor: pointer;
-  font-size: 16px;
+  font-size: 0.95rem; /* Slightly smaller font */
   transition: background-color 0.3s, transform 0.2s;
 }
 
 .config-section button:hover {
   background-color: var(--button-hover);
-  transform: translateY(-2px);
+  transform: translateY(-1px); /* Less movement */
 }
 
 .config-section button:disabled {
-  background-color: #555555;
+  background-color: var(--border-color);
   cursor: not-allowed;
 }
