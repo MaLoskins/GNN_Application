@@ -6,8 +6,13 @@ if [ "$#" -lt 1 ]; then
   exit 1
 fi
 
-# First argument is the root directory
-root_directory="$1"
+# Normalize paths by converting backslashes to forward slashes
+normalize_path() {
+  echo "$1" | sed 's|\\|/|g'
+}
+
+# First argument is the root directory (normalized)
+root_directory=$(normalize_path "$1")
 shift
 
 # Remaining arguments are directories to ignore (if any)
@@ -17,12 +22,14 @@ ignore_dirs=("$@")
 ignore_params=()
 if [ "${#ignore_dirs[@]}" -gt 0 ]; then
   for ignore_dir in "${ignore_dirs[@]}"; do
-    ignore_params+=(! -path "$root_directory/$ignore_dir/*")
+    # Normalize each ignore directory path
+    normalized_ignore_dir=$(normalize_path "$ignore_dir")
+    ignore_params+=(! -path "$root_directory/$normalized_ignore_dir/*")
   done
 fi
 
-# Find files and output to output.txt in the specified format
-find "$root_directory" -type f "${ignore_params[@]}" | while read -r file; do
+# Find files with specific extensions and output to output.txt in the specified format
+find "$root_directory" -type f \( -name "*.js" -o -name "*.py" -o -name "*.css" \) "${ignore_params[@]}" | while IFS= read -r file; do
   echo "$file:" >> output.txt
   cat "$file" >> output.txt
   echo -e "\n\n" >> output.txt

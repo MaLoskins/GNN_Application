@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
 import networkx as nx
 from networkx.readwrite import json_graph
-from Tabular_to_Graph import DataFrameToGraph  # Ensure this class is accessible
+from DataFrameToGraph import DataFrameToGraph  # Ensure this class is accessible
 # To boot server use: uvicorn main:app --reload
 
 app = FastAPI()

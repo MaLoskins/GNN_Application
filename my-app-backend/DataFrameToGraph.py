@@ -12,7 +12,7 @@ import matplotlib.colors as colors
 # Set up logging to file instead of console
 logging.basicConfig(
     level=logging.INFO,
-    filename='app.log',         # Specify the file name for the log file
+    filename='logs/data_to_graph.log',         # Specify the file name for the log file
     filemode='w',               # 'w' for write mode, 'a' for append mode
     format='%(asctime)s - %(levelname)s - %(message)s'
 )

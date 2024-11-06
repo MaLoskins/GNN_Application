@@ -1,7 +1,7 @@
 // src/components/ReactFlowWrapper/ReactFlowWrapper.js
 import React from 'react';
 import ReactFlow, { Background, Controls } from 'react-flow-renderer';
-import './ReactFlowWrapper.css'; // Correct Import
+import './ReactFlowWrapper.css'; 
 import 'react-flow-renderer/dist/style.css'; // Import React Flow's default styles
 
 const ReactFlowWrapper = ({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onNodeClick }) => {

@@ -30,3 +30,8 @@ my-app-backend/graph_pyg_data.pt
 # Other sensitive files (adjust as necessary)
 my-app/.env
 my-app-backend/.env
+
+# Ignore Bert_Cache and Glove_Cache
+my-app-backend/Bert_Cache/*
+my-app-backend/Glove_Cache/*
+my-app-backend/Category_Mappings/*
