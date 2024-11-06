@@ -1,22 +1,29 @@
 /* src/components/FileUploader/FileUploader.css */
 
+.file-uploader {
+  max-width: 600px;
+  margin: 20px auto;
+}
+
 .dropzone {
-  border: 2px dashed var(--dropzone-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  border: 2px dashed var(--border-color);
   border-radius: 10px;
-  padding: 40px;
-  cursor: pointer;
-  margin-bottom: 20px;
   background-color: var(--dropzone-background);
+  color: var(--text-color);
+  cursor: pointer;
   transition: background-color 0.3s, border-color 0.3s;
 }
 
-.dropzone:hover {
-  background-color: var(--secondary-color);
+.dropzone.active {
+  background-color: var(--dropzone-active-background);
   border-color: var(--accent-color);
 }
 
 .dropzone p {
-  margin: 0;
   font-size: 16px;
-  color: var(--secondary-text-color);
+  text-align: center;
 }

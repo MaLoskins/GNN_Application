@@ -1,4 +1,4 @@
-
+# Tabular_to_Graph.py
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -115,6 +115,14 @@ class DataFrameToGraph:
                     target_id_str = str(target_id)
                 except (ValueError, TypeError):
                     logger.warning(f"Row {index}: Invalid data type for target_id '{target_id}'. Skipping edge addition.")
+                    continue
+
+                # Ensure both source and target nodes are present in the graph
+                if source_id_str not in self.node_registry:
+                    logger.warning(f"Row {index}: Source node '{source_id_str}' not in selected nodes. Skipping edge addition.")
+                    continue
+                if target_id_str not in self.node_registry:
+                    logger.warning(f"Row {index}: Target node '{target_id_str}' not in selected nodes. Skipping edge addition.")
                     continue
 
                 self._add_edge(source_id_str, target_id_str, relationship_type, features)

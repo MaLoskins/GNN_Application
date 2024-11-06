@@ -4,12 +4,11 @@
   height: 60vh; /* 60% of the viewport height */
   width: 90%;
   max-width: 1200px;
-  margin: 0 auto 30px;
+  margin: 20px auto;
   border: 1px solid var(--border-color);
   border-radius: 10px;
   background-color: var(--primary-color);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  /* Removed padding to prevent node overflow */
   position: relative; /* Ensures React Flow positions correctly */
 }
 
@@ -26,7 +25,7 @@
 }
 
 /* Node Styling */
-.node {
+.react-flow__node.default {
   background-color: var(--secondary-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
@@ -40,17 +39,17 @@
   height: 100%;
 }
 
-.node:hover {
+.react-flow__node.default:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* Edge Styling */
-.edgePath {
+.react-flow__edge-path {
   stroke: var(--accent-color);
   stroke-width: 2px;
 }
 
-.edgeArrowhead {
+.react-flow__edge-arrowhead {
   fill: var(--accent-color);
 }

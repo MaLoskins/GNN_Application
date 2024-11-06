@@ -12,6 +12,7 @@ import ConfigurationPanel from './components/ConfigurationPanel/ConfigurationPan
 import GraphVisualizer from './components/GraphVisualizer/GraphVisualizer';
 import RelationshipModal from './components/RelationshipModal/RelationshipModal';
 import ReactFlowWrapper from './components/ReactFlowWrapper/ReactFlowWrapper'; // Import the new component
+import NodeEditModal from './components/NodeEditModal/NodeEditModal'; // Import the new component
 import './App.css';
 import 'react-flow-renderer/dist/style.css'; // Import React Flow's default styles
 
@@ -26,9 +27,13 @@ function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // Modal States
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  // Modal States for Relationships
+  const [relationshipModalIsOpen, setRelationshipModalIsOpen] = useState(false);
   const [currentEdge, setCurrentEdge] = useState(null);
+
+  // Modal States for Node Editing
+  const [nodeEditModalIsOpen, setNodeEditModalIsOpen] = useState(false);
+  const [currentNode, setCurrentNode] = useState(null);
 
   // Handle file drop
   const handleFileDrop = (data, fields) => {
@@ -38,39 +43,20 @@ function App() {
     initializeReactFlow(fields);
   };
 
-  // Initialize config with default selections
+  // Initialize config with selectable nodes
   const initializeConfig = (fields) => {
     setConfig({
-      nodes: fields.map((field) => ({
-        id: field,
-        type: 'default',
-        features: [],
-      })),
+      nodes: [], // Initially no nodes are selected
       relationships: [],
       graph_type: 'directed', // You can change this to 'undirected' if needed
     });
   };
 
-  // Initialize React Flow nodes with grid layout
+  // Initialize React Flow nodes with grid layout (only selected nodes will appear)
   const initializeReactFlow = (fields) => {
-    const columnsPerRow = 6; // Increased columns per row for wider screens
-    const nodeSpacingX = 150; // Reduced horizontal spacing
-    const nodeSpacingY = 150; // Reduced vertical spacing
-    const flowNodes = fields.map((field, index) => {
-      const row = Math.floor(index / columnsPerRow);
-      const col = index % columnsPerRow;
-      const x = col * nodeSpacingX;
-      const y = row * nodeSpacingY;
-
-      return {
-        id: field,
-        type: 'default',
-        data: { label: field },
-        position: { x, y },
-      };
-    });
-
-    setNodes(flowNodes);
+    // Initially, no nodes are selected, so ReactFlow will render empty
+    setNodes([]);
+    setEdges([]);
   };
 
   // Handle relationship submission
@@ -113,14 +99,104 @@ function App() {
     });
 
     // Reset modal state
-    setModalIsOpen(false);
+    setRelationshipModalIsOpen(false);
     setCurrentEdge(null);
   };
 
   // Handle edge creation
   const onConnectHandler = (params) => {
     setCurrentEdge(params);
-    setModalIsOpen(true);
+    setRelationshipModalIsOpen(true);
+  };
+
+  // Handle node click for editing
+  const onNodeClickHandler = (node) => {
+    setCurrentNode(node);
+    setNodeEditModalIsOpen(true);
+  };
+
+  // Handle node type and feature updates
+  const handleSaveNodeEdit = ({ nodeType, nodeFeatures }) => {
+    if (!nodeType) {
+      alert('Please enter a node type.');
+      return;
+    }
+
+    // Update config.nodes using functional updater
+    setConfig((prevConfig) => {
+      const updatedNodes = prevConfig.nodes.map((n) => {
+        if (n.id === currentNode.id) {
+          return {
+            ...n,
+            type: nodeType,
+            features: nodeFeatures,
+          };
+        }
+        return n;
+      });
+
+      return {
+        ...prevConfig,
+        nodes: updatedNodes,
+      };
+    });
+
+    // Update React Flow node data
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === currentNode.id) {
+          return {
+            ...node,
+            type: nodeType,
+            data: { ...node.data, label: `${node.data.label} (${nodeType})` },
+          };
+        }
+        return node;
+      })
+    );
+
+    // Reset modal state
+    setNodeEditModalIsOpen(false);
+    setCurrentNode(null);
+  };
+
+  // Handle node selection for inclusion as a node in the graph
+  const handleSelectNode = (column) => {
+    // Check if the column is already selected as a node
+    const isSelected = config.nodes.find((n) => n.id === column);
+
+    if (isSelected) {
+      // If already selected, remove it
+      setConfig((prevConfig) => ({
+        ...prevConfig,
+        nodes: prevConfig.nodes.filter((n) => n.id !== column),
+      }));
+
+      // Remove from React Flow
+      setNodes((nds) => nds.filter((n) => n.id !== column));
+
+      // Optionally, remove related edges
+      setEdges((eds) => eds.filter((e) => e.source !== column && e.target !== column));
+    } else {
+      // If not selected, add it with default type
+      setConfig((prevConfig) => ({
+        ...prevConfig,
+        nodes: [...prevConfig.nodes, { id: column, type: 'default', features: [] }],
+      }));
+
+      // Add to React Flow with default type and position
+      const newNode = {
+        id: column,
+        type: 'default',
+        data: { label: column },
+        position: {
+          x: Math.random() * 600 - 300, // Random position for simplicity
+          y: Math.random() * 600 - 300,
+        },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    }
   };
 
   // Handle form submission
@@ -131,8 +207,8 @@ function App() {
         alert('Please select an ID column for all nodes.');
         return;
       }
-      if (!node.type) {
-        alert('Please specify a type for all nodes.');
+      if (!node.type || node.type === 'default') { // Ensure type is specified
+        alert(`Please specify a valid type for node '${node.id}'.`);
         return;
       }
     }
@@ -141,8 +217,8 @@ function App() {
         alert('Please select source and target columns for all relationships.');
         return;
       }
-      if (!rel.type) {
-        alert('Please specify a type for all relationships.');
+      if (!rel.type || rel.type === 'default') { // Ensure relationship type is specified
+        alert('Please specify a valid type for all relationships.');
         return;
       }
     }
@@ -201,6 +277,19 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Update config.nodes whenever nodes state changes (e.g., after node edits)
+  useEffect(() => {
+    if (columns.length === 0) return;
+    setConfig((prevConfig) => ({
+      ...prevConfig,
+      nodes: nodes.map((node) => ({
+        id: node.id,
+        type: node.type || 'default',
+        features: prevConfig.nodes.find((n) => n.id === node.id)?.features || [],
+      })),
+    }));
+  }, [nodes, columns]);
+
   return (
     <ReactFlowProvider>
       <div className="App">
@@ -209,12 +298,14 @@ function App() {
         {/* CSV Upload Section */}
         <FileUploader onFileDrop={handleFileDrop} />
 
-        {/* Configuration Section */}
+        {/* Configuration Section for Selecting Nodes and Relationships */}
         {columns.length > 0 && (
           <ConfigurationPanel
             columns={columns}
+            onSelectNode={handleSelectNode}
             onSubmit={handleSubmit}
             loading={loading}
+            selectedNodes={config.nodes.map((n) => n.id)}
           />
         )}
 
@@ -226,6 +317,7 @@ function App() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnectHandler}
+            onNodeClick={onNodeClickHandler} // Pass node click handler
           />
         )}
 
@@ -236,11 +328,21 @@ function App() {
 
         {/* Relationship Modal */}
         <RelationshipModal
-          isOpen={modalIsOpen}
-          onRequestClose={() => setModalIsOpen(false)}
+          isOpen={relationshipModalIsOpen}
+          onRequestClose={() => setRelationshipModalIsOpen(false)}
           columns={columns}
           onSaveRelationship={handleSaveRelationship}
         />
+
+        {/* Node Edit Modal */}
+        {currentNode && (
+          <NodeEditModal
+            isOpen={nodeEditModalIsOpen}
+            onRequestClose={() => setNodeEditModalIsOpen(false)}
+            node={currentNode}
+            onSaveNodeEdit={handleSaveNodeEdit}
+          />
+        )}
       </div>
     </ReactFlowProvider>
   );
@@ -251,62 +353,39 @@ export default App;
 /*
 Detailed Explanation:
 
-The `App` component serves as the root component of the React application, orchestrating the overall workflow from CSV file upload to graph visualization. Here's a comprehensive breakdown of its structure and functionality:
+1. **Selective Node Inclusion:**
+   - **`handleSelectNode`**: This function toggles the selection of a column as a node. If the column is already selected, it removes it; otherwise, it adds it with a default type.
+   - **`ConfigurationPanel`**: Updated to include node selection UI (see the next section).
 
-1. **Imports**:
-   - **React**, **useState**, **useEffect**: Core React library and hooks for managing state and side effects.
-   - **processData** from `./api`: A function responsible for sending the uploaded CSV data and configuration to the backend for processing.
-   - **ReactFlowProvider**, **addEdge**, **useNodesState**, **useEdgesState** from `react-flow-renderer`: Components and hooks from the `react-flow-renderer` library for managing and rendering interactive flow diagrams.
-   - **Custom Components**: `FileUploader`, `ConfigurationPanel`, `GraphVisualizer`, `RelationshipModal`, and `ReactFlowWrapper` are custom components that handle specific parts of the application.
-   - **CSS Files**: `App.css` and `react-flow-renderer/dist/style.css` for styling the application and the React Flow diagrams.
+2. **Dynamic Validation:**
+   - The `handleSubmit` function now only validates node types for columns selected as nodes.
+   - Previously, all columns were treated as nodes with default types, leading to validation errors for unselected nodes.
 
-2. **State Variables**:
-   - **`csvData`**: Holds the data parsed from the uploaded CSV file.
-   - **`columns`**: Stores the headers (column names) extracted from the CSV file.
-   - **`config`**: An object containing the configuration for nodes, relationships, and graph type (`directed` by default).
-   - **`graphData`**: Stores the processed graph data received from the backend, ready for visualization.
-   - **`loading`**: A boolean indicating whether the data processing is currently underway.
-   - **`nodes`**, **`setNodes`**, **`onNodesChange`**: Managed by `useNodesState`, these handle the state and updates of nodes in the React Flow diagram.
-   - **`edges`**, **`setEdges`**, **`onEdgesChange`**: Managed by `useEdgesState`, these handle the state and updates of edges in the React Flow diagram.
-   - **`modalIsOpen`**: Controls the visibility of the `RelationshipModal`.
-   - **`currentEdge`**: Holds the information about the edge currently being configured in the modal.
+3. **Integration with `ReactFlowWrapper`:**
+   - **`onNodeClickHandler`**: Handles the event when a node is clicked, opening the `NodeEditModal` for dynamic editing.
 
-3. **Handlers and Initialization Functions**:
-   - **`handleFileDrop`**: Invoked when a user uploads a CSV file. It updates `csvData` and `columns`, and initializes the configuration and React Flow nodes based on the uploaded data.
-   - **`initializeConfig`**: Sets up the default configuration for nodes based on the CSV columns, initializing each node with an `id`, `type`, and empty `features`.
-   - **`initializeReactFlow`**: Arranges the nodes in a grid layout within the React Flow diagram, determining their initial positions based on predefined spacing and the number of columns per row.
-   - **`handleSaveRelationship`**: Called when a user saves a relationship configuration from the modal. It updates the `config` with the new relationship, adds the corresponding edge to the React Flow diagram, and closes the modal.
-   - **`onConnectHandler`**: Triggered when a new edge is created between nodes in the React Flow diagram. It sets the current edge being connected and opens the `RelationshipModal`.
-   - **`handleSubmit`**: Handles the submission of the entire configuration. It performs basic validation to ensure all required fields are filled, sends the data to the backend for processing via `processData`, and updates `graphData` based on the response. It also calculates node degrees to determine their sizes in the visualization.
+4. **State Management:**
+   - **`config.nodes`**: Now only includes columns selected as nodes.
+   - **`config.relationships`**: Manages relationships defined via `RelationshipModal`.
+   - **`nodes` and `edges`**: Managed by React Flow hooks.
 
-4. **Responsive Design Handling**:
-   - **`dimensions`**: Maintains the width and height of the graph visualization based on the window size, ensuring responsiveness.
-   - **`useEffect`**: Adds an event listener for window resize events to dynamically update `dimensions`, maintaining a 3:2 aspect ratio for the graph.
+5. **UI Components:**
+   - **`NodeEditModal`**: Allows dynamic editing of node types and features directly within the graph.
 
-5. **Rendering**:
-   - **`ReactFlowProvider`**: Wraps the entire application to provide context for React Flow components.
-   - **`div.App`**: The main container for the application, styled via `App.css`.
-   - **Components Rendered**:
-     - **`FileUploader`**: Allows users to upload CSV files.
-     - **`ConfigurationPanel`**: Displays configuration options once columns are available.
-     - **`ReactFlowWrapper`**: Renders the interactive flow diagram based on nodes and edges.
-     - **`GraphVisualizer`**: Visualizes the processed graph data in a force-directed layout.
-     - **`RelationshipModal`**: Provides a modal interface for configuring relationships between nodes.
+6. **Initial ReactFlow Nodes:**
+   - Initially, no nodes are selected; nodes are added by the user via the `ConfigurationPanel`.
 
-6. **Export**:
-   - The `App` component is exported as the default export, serving as the entry point of the React application.
+7. **Edge Handling:**
+   - Only edges between selected nodes are allowed. You might need to enforce this in the `RelationshipModal` or during processing.
 
-**Purpose in the Application**:
-The `App` component orchestrates the entire workflow of the application:
+8. **Responsive Design:**
+   - The `dimensions` state ensures the graph remains responsive to window resizing.
 
-1. **Data Ingestion**: Users upload a CSV file using the `FileUploader`, which parses the data and extracts column information.
-2. **Configuration**: The `ConfigurationPanel` allows users to define how different columns relate to each other, specifying nodes and relationships.
-3. **Visualization Setup**: The `ReactFlowWrapper` presents an interactive diagram where users can visually arrange and connect nodes.
-4. **Relationship Management**: When users create or modify relationships between nodes, the `RelationshipModal` facilitates detailed configuration.
-5. **Data Processing**: Upon submission, the application sends the configured data to the backend (`processData`) for processing into a graph structure.
-6. **Graph Visualization**: The `GraphVisualizer` component displays the resulting graph, allowing users to explore and analyze the relationships in a dynamic, interactive manner.
+9. **Assumptions:**
+   - The `ConfigurationPanel` now includes node selection capabilities (see the next section).
+   - The `NodeEditModal` component allows dynamic editing of node types and features.
 
-Overall, the `App` component integrates all sub-components to provide a seamless experience for transforming CSV data into interactive graph visualizations, enabling users to gain insights from their data through configuration and visualization tools.
+10. **Backend Synchronization:**
+    - The `processData` function sends the updated `config` to the backend, which now only includes selected nodes with their respective types and features.
 
 */
-
