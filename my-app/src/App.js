@@ -1,27 +1,33 @@
 // src/App.js
+
 import React, { useState, useEffect } from 'react';
-import { processData } from './api';
+import { processData, createFeatureSpace } from './api'; // Ensure createFeatureSpace is imported
 import { 
   ReactFlowProvider, 
   addEdge, 
   useNodesState, 
   useEdgesState 
-} from 'react-flow-renderer'; // Named Imports
+} from 'react-flow-renderer';
 import FileUploader from './components/FileUploader/FileUploader';
 import ConfigurationPanel from './components/ConfigurationPanel/ConfigurationPanel';
 import GraphVisualizer from './components/GraphVisualizer/GraphVisualizer';
 import RelationshipModal from './components/RelationshipModal/RelationshipModal';
-import ReactFlowWrapper from './components/ReactFlowWrapper/ReactFlowWrapper'; // Import the new component
-import NodeEditModal from './components/NodeEditModal/NodeEditModal'; // Import the new component
+import ReactFlowWrapper from './components/ReactFlowWrapper/ReactFlowWrapper';
+import NodeEditModal from './components/NodeEditModal/NodeEditModal';
+import FeatureSpaceCreatorTab from './components/FeatureSpaceCreatorTab/FeatureSpaceCreatorTab'; // New Tab Component
 import './App.css';
-import 'react-flow-renderer/dist/style.css'; // Import React Flow's default styles
+import 'react-flow-renderer/dist/style.css';
 
 function App() {
   const [csvData, setCsvData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [config, setConfig] = useState({ nodes: [], relationships: [], graph_type: 'directed' });
   const [graphData, setGraphData] = useState(null);
+  const [featureSpaceData, setFeatureSpaceData] = useState(null); // State for Feature Space
   const [loading, setLoading] = useState(false);
+  
+  // Tab State
+  const [activeTab, setActiveTab] = useState('graph'); // 'graph' or 'featureSpace'
 
   // Initialize nodes and edges using hooks
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -79,7 +85,6 @@ function App() {
       const edgeWithData = {
         ...currentEdge,
         type: 'smoothstep', // You can choose any edge type you prefer   
-        
         animated: prevConfig.graph_type === 'directed',
         arrowHeadType: prevConfig.graph_type === 'directed' ? 'arrowclosed' : 'none',
         label: relationshipType,
@@ -199,7 +204,7 @@ function App() {
     }
   };
 
-  // Handle form submission
+  // Handle form submission for graph processing
   const handleSubmit = async () => {
     // Basic validation
     for (let node of config.nodes) {
@@ -259,6 +264,38 @@ function App() {
     setLoading(false);
   };
 
+  // Handle Feature Space submission
+  const handleFeatureSpaceSubmit = async (featureConfig) => {
+    if (csvData.length === 0) {
+      alert('Please upload and process CSV data first.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await createFeatureSpace(csvData, featureConfig);
+
+      // Destructure the response to get features, multi_graph_settings, and feature_space
+      const { features, multi_graph_settings, feature_space } = response;
+
+      // Convert feature_space from JSON string to JavaScript object
+      const featureSpaceObj = JSON.parse(feature_space);
+
+      // Attach features and multi_graph_settings to featureSpaceObj
+      featureSpaceObj.features = features;
+      featureSpaceObj.multi_graph_settings = multi_graph_settings;
+
+      // Set the feature space data state
+      setFeatureSpaceData(featureSpaceObj);
+      alert('Feature space created successfully.');
+    } catch (error) {
+      console.error('Error creating feature space:', error);
+      alert('Error creating feature space. Check console for details.');
+    }
+    setLoading(false);
+  };
+
+
   // Handle window resize for responsive graph
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth * 0.9, // Increased width to 90%
@@ -295,52 +332,84 @@ function App() {
       <div className="App">
         <h1>CSV to Graph Application</h1>
 
-        {/* CSV Upload Section */}
-        <FileUploader onFileDrop={handleFileDrop} />
+        {/* Tab Navigation */}
+        <div className="tab-navigation">
+          <button
+            className={`tab-button ${activeTab === 'graph' ? 'active' : ''}`}
+            onClick={() => setActiveTab('graph')}
+          >
+            Graph
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'featureSpace' ? 'active' : ''}`}
+            onClick={() => setActiveTab('featureSpace')}
+          >
+            Feature Space Creator
+          </button>
+        </div>
 
-        {/* Configuration Section for Selecting Nodes and Relationships */}
-        {columns.length > 0 && (
-          <ConfigurationPanel
+        {/* Tab Content */}
+        {activeTab === 'graph' && (
+          <>
+            {/* CSV Upload Section */}
+            <FileUploader onFileDrop={handleFileDrop} />
+
+            {/* Configuration Section for Selecting Nodes and Relationships */}
+            {columns.length > 0 && (
+              <ConfigurationPanel
+                columns={columns}
+                onSelectNode={handleSelectNode}
+                onSubmit={handleSubmit}
+                loading={loading}
+                selectedNodes={config.nodes.map((n) => n.id)}
+              />
+            )}
+
+            {/* React Flow Configurator */}
+            {columns.length > 0 && (
+              <ReactFlowWrapper
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnectHandler}
+                onNodeClick={onNodeClickHandler} // Pass node click handler
+              />
+            )}
+
+            {/* Graph Visualization Section */}
+            {graphData && (
+              <GraphVisualizer graphData={graphData} dimensions={dimensions} />
+            )}
+
+            {/* Relationship Modal */}
+            <RelationshipModal
+              isOpen={relationshipModalIsOpen}
+              onRequestClose={() => setRelationshipModalIsOpen(false)}
+              columns={columns}
+              onSaveRelationship={handleSaveRelationship}
+            />
+
+            {/* Node Edit Modal */}
+            {currentNode && (
+              <NodeEditModal
+                isOpen={nodeEditModalIsOpen}
+                onRequestClose={() => setNodeEditModalIsOpen(false)}
+                node={currentNode}
+                onSaveNodeEdit={handleSaveNodeEdit}
+              />
+            )}
+
+          </>
+        )}
+
+        {activeTab === 'featureSpace' && (
+          <FeatureSpaceCreatorTab
+            csvData={csvData}
             columns={columns}
-            onSelectNode={handleSelectNode}
-            onSubmit={handleSubmit}
+            onSubmit={handleFeatureSpaceSubmit}
             loading={loading}
-            selectedNodes={config.nodes.map((n) => n.id)}
-          />
-        )}
-
-        {/* React Flow Configurator */}
-        {columns.length > 0 && (
-          <ReactFlowWrapper
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnectHandler}
-            onNodeClick={onNodeClickHandler} // Pass node click handler
-          />
-        )}
-
-        {/* Graph Visualization Section */}
-        {graphData && (
-          <GraphVisualizer graphData={graphData} dimensions={dimensions} />
-        )}
-
-        {/* Relationship Modal */}
-        <RelationshipModal
-          isOpen={relationshipModalIsOpen}
-          onRequestClose={() => setRelationshipModalIsOpen(false)}
-          columns={columns}
-          onSaveRelationship={handleSaveRelationship}
-        />
-
-        {/* Node Edit Modal */}
-        {currentNode && (
-          <NodeEditModal
-            isOpen={nodeEditModalIsOpen}
-            onRequestClose={() => setNodeEditModalIsOpen(false)}
-            node={currentNode}
-            onSaveNodeEdit={handleSaveNodeEdit}
+            featureSpaceData={featureSpaceData}
           />
         )}
       </div>
@@ -349,43 +418,3 @@ function App() {
 }
 
 export default App;
-
-/*
-Detailed Explanation:
-
-1. **Selective Node Inclusion:**
-   - **`handleSelectNode`**: This function toggles the selection of a column as a node. If the column is already selected, it removes it; otherwise, it adds it with a default type.
-   - **`ConfigurationPanel`**: Updated to include node selection UI (see the next section).
-
-2. **Dynamic Validation:**
-   - The `handleSubmit` function now only validates node types for columns selected as nodes.
-   - Previously, all columns were treated as nodes with default types, leading to validation errors for unselected nodes.
-
-3. **Integration with `ReactFlowWrapper`:**
-   - **`onNodeClickHandler`**: Handles the event when a node is clicked, opening the `NodeEditModal` for dynamic editing.
-
-4. **State Management:**
-   - **`config.nodes`**: Now only includes columns selected as nodes.
-   - **`config.relationships`**: Manages relationships defined via `RelationshipModal`.
-   - **`nodes` and `edges`**: Managed by React Flow hooks.
-
-5. **UI Components:**
-   - **`NodeEditModal`**: Allows dynamic editing of node types and features directly within the graph.
-
-6. **Initial ReactFlow Nodes:**
-   - Initially, no nodes are selected; nodes are added by the user via the `ConfigurationPanel`.
-
-7. **Edge Handling:**
-   - Only edges between selected nodes are allowed. You might need to enforce this in the `RelationshipModal` or during processing.
-
-8. **Responsive Design:**
-   - The `dimensions` state ensures the graph remains responsive to window resizing.
-
-9. **Assumptions:**
-   - The `ConfigurationPanel` now includes node selection capabilities (see the next section).
-   - The `NodeEditModal` component allows dynamic editing of node types and features.
-
-10. **Backend Synchronization:**
-    - The `processData` function sends the updated `config` to the backend, which now only includes selected nodes with their respective types and features.
-
-*/

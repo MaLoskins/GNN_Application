@@ -1,4 +1,6 @@
 # my-app-backend/main.py
+# To boot server use: uvicorn main:app --reload
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import pandas as pd
@@ -7,7 +9,7 @@ from typing import List, Dict, Any
 import networkx as nx
 from networkx.readwrite import json_graph
 from DataFrameToGraph import DataFrameToGraph  # Ensure this class is accessible
-# To boot server use: uvicorn main:app --reload
+from FeatureSpaceCreator import FeatureSpaceCreator  # Import the FeatureSpaceCreator class
 
 app = FastAPI()
 
@@ -51,3 +53,35 @@ def process_data(model: DataModel):
         return {"graph": graph_data}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+# New Endpoint for Feature Space Creation
+class FeatureSpaceRequest(BaseModel):
+    data: List[Dict[str, Any]]  # List of dictionaries representing CSV rows
+    config: Dict[str, Any]      # Configuration dictionary
+
+@app.post("/create-feature-space")
+def create_feature_space(request: FeatureSpaceRequest):
+    try:
+        df = pd.DataFrame(request.data)
+        config = request.config
+
+        # Initialize FeatureSpaceCreator
+        feature_space_creator = FeatureSpaceCreator(config=config, device="cpu")  # Adjust device as needed
+
+        # Process the DataFrame to create feature space
+        feature_space = feature_space_creator.process(df)
+
+        # Convert feature_space DataFrame to JSON
+        feature_space_json = feature_space.to_json(orient="split")  # 'split' format for better structure
+
+        # Prepare the response with features and multi_graph_settings
+        response = {
+            "features": config.get("features", []),
+            "multi_graph_settings": config.get("multi_graph_settings", {}),
+            "feature_space": feature_space_json
+        }
+
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
