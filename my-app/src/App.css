@@ -14,7 +14,7 @@
   --modal-background: #1f1f1f;
   --dropzone-border: #444444;
   --dropzone-background: #1f1f1f;
-  --dropzone-active-background: #2c2c2c; /* Added active background */
+  --dropzone-active-background: #2c2c2c;
   --input-background: #2c2c2c;
   --input-text-color: #ffffff;
   --select-background: #2c2c2c;
@@ -38,32 +38,32 @@ body {
 .App {
   text-align: center;
   padding: 15px;
-  max-width: 1000px; /* Reduced max-width for compactness */
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 h1 {
   color: var(--accent-color);
   margin-bottom: 25px;
-  font-size: 2rem; /* Reduced font size */
+  font-size: 1.8rem;
 }
 
 /* Tab Navigation */
 .tab-navigation {
   display: flex;
   justify-content: center;
-  margin-bottom: 15px; /* Reduced margin */
+  margin-bottom: 15px;
 }
 
 .tab-button {
   background-color: var(--primary-color);
   color: var(--inactive-tab-color);
   border: none;
-  padding: 8px 16px; /* Reduced padding */
-  margin: 0 4px; /* Reduced margin */
+  padding: 10px 20px;
+  margin: 0 4px;
   cursor: pointer;
-  font-size: 0.95rem; /* Slightly smaller font */
-  border-radius: 4px 4px 0 0; /* Slightly reduced border-radius */
+  font-size: 0.95rem;
+  border-radius: 4px 4px 0 0;
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -81,32 +81,32 @@ h1 {
 .feature-space-output {
   background-color: var(--primary-color);
   border: 1px solid var(--border-color);
-  padding: 15px; /* Reduced padding */
-  margin-top: 25px; /* Reduced margin */
-  border-radius: 6px; /* Reduced border-radius */
+  padding: 15px;
+  margin-top: 25px;
+  border-radius: 6px;
   text-align: left;
 }
 
 .feature-space-output h3 {
   color: var(--accent-color);
-  margin-bottom: 8px; /* Reduced margin */
+  margin-bottom: 8px;
   font-size: 1.3rem;
 }
 
 .feature-space-output pre {
   background-color: var(--pre-background);
   color: var(--text-color);
-  padding: 12px; /* Reduced padding */
+  padding: 12px;
   border-radius: 4px;
   overflow-x: auto;
-  max-height: 350px; /* Reduced max-height */
+  max-height: 350px;
   overflow-y: auto;
   font-size: 0.85rem;
 }
 
 .download-link {
   display: inline-block;
-  margin-top: 10px; /* Reduced margin */
+  margin-top: 10px;
   color: var(--link-color);
   text-decoration: underline;
   cursor: pointer;
@@ -117,29 +117,25 @@ h1 {
   color: var(--button-hover);
 }
 
-/* src/App.css or src/components/ReactFlowWrapper/ReactFlowWrapper.css */
-
+/* Custom Node Style */
 .custom-node-style {
-  /* Make nodes circles: */
-  width: 15%;
-  height: 10%;
-  border-radius: 20%;
-  background-color: var(--button-background); /* Example: Deep Orange */
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--button-background);
   color: #ffffff;
-  /* Center Text:*/
   display: flex;
   justify-content: center;
-  align-items: center;  
+  align-items: center;
   font-weight: bold;
   border: 2px solid var(--border-color);
-  /* Additional custom styles */
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .custom-node-style:hover {
   background-color: var(--button-hover);
   transform: scale(1.05);
 }
-
 
 /* Responsive Design */
 @media (max-width: 768px) {

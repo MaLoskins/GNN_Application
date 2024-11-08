@@ -1,7 +1,7 @@
 // src/components/ConfigurationPanel/ConfigurationPanel.js
 
 import React from 'react';
-import './ConfigurationPanel.css'; // Ensure correct path
+import './ConfigurationPanel.css';
 
 const ConfigurationPanel = ({ columns, onSelectNode, onSubmit, loading, selectedNodes }) => {
   return (
@@ -21,7 +21,7 @@ const ConfigurationPanel = ({ columns, onSelectNode, onSubmit, loading, selected
           </div>
         ))}
       </div>
-      <button onClick={onSubmit} disabled={loading}>
+      <button onClick={onSubmit} disabled={loading || selectedNodes.length === 0}>
         {loading ? 'Processing...' : 'Process Graph'}
       </button>
     </div>

@@ -1,17 +1,17 @@
 /* src/components/FileUploader/FileUploader.css */
 
 .file-uploader {
-  max-width: 500px; /* Reduced max-width for compactness */
-  margin: 15px auto; /* Reduced margin */
+  max-width: 500px;
+  margin: 15px auto;
 }
 
 .dropzone {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 120px; /* Reduced height */
+  height: 100px;
   border: 2px dashed var(--border-color);
-  border-radius: 6px; /* Reduced border-radius */
+  border-radius: 6px;
   background-color: var(--dropzone-background);
   color: var(--text-color);
   cursor: pointer;
@@ -24,7 +24,7 @@
 }
 
 .dropzone p {
-  font-size: 0.95rem; /* Slightly smaller font */
+  font-size: 0.95rem;
   text-align: center;
-  padding: 0 10px; /* Added padding for text */
+  padding: 0 10px;
 }

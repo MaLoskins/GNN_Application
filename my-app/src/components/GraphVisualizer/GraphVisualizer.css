@@ -2,7 +2,7 @@
 
 .graph-section {
   text-align: center;
-  margin-top: 20px; /* Reduced margin */
+  margin-top: 20px;
 }
 
 .graph-section h2 {
@@ -13,14 +13,14 @@
 
 .graph-container {
   width: 100%;
-  max-width: 1200px; /* Reduced max-width for compactness */
+  max-width: 1000px;
   margin: 0 auto;
   border: 1px solid var(--border-color);
-  border-radius: 6px; /* Reduced border-radius */
+  border-radius: 6px;
   overflow: hidden;
   background-color: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtler shadow */
-  aspect-ratio: 4 / 3; /* Adjusted aspect ratio for better fit */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 4 / 3;
 }
 
 /* ForceGraph2D Styling */

@@ -2,15 +2,22 @@
 
 import React from 'react';
 import ReactFlow, { Background, Controls } from 'react-flow-renderer';
-import './ReactFlowWrapper.css'; 
-import 'react-flow-renderer/dist/style.css'; // Import React Flow's default styles
+import './ReactFlowWrapper.css';
 
-const ReactFlowWrapper = ({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onNodeClick }) => {
+const ReactFlowWrapper = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onNodeClick,
+}) => {
   const handleNodeClick = (event, node) => {
     if (onNodeClick) {
       onNodeClick(node);
     }
   };
+
   return (
     <div className="wrapper">
       <ReactFlow
@@ -20,7 +27,7 @@ const ReactFlowWrapper = ({ nodes, edges, onNodesChange, onEdgesChange, onConnec
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={handleNodeClick}
-        deleteKeyCode={46} /* 'delete'-key */
+        deleteKeyCode={46}
         fitView
         style={{ width: '100%', height: '100%' }}
       >

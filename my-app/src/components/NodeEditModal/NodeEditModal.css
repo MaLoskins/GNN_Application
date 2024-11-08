@@ -24,7 +24,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 999;
 }
 
@@ -53,7 +53,7 @@
   font-size: 0.95rem;
 }
 
-.form-group input[type="text"] {
+.form-group input[type='text'] {
   width: 100%;
   padding: 7px;
   background-color: var(--input-background);
@@ -65,7 +65,7 @@
   font-size: 0.95rem;
 }
 
-.form-group input[type="text"]:focus {
+.form-group input[type='text']:focus {
   border-color: var(--accent-color);
 }
 
@@ -129,7 +129,7 @@
 }
 
 .modal-buttons button:last-child {
-  background-color: #e74c3c; /* Cancel Button - Red */
+  background-color: #e74c3c;
   color: #ffffff;
 }
 

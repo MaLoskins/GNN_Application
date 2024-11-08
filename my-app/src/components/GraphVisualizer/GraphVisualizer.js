@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
-import './GraphVisualizer.css'; // Ensure correct path
+import './GraphVisualizer.css';
 
 const GraphVisualizer = ({ graphData, dimensions }) => {
   return (

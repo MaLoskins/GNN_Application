@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import './NodeEditModal.css'; // Ensure correct path
+import './NodeEditModal.css';
 
-Modal.setAppElement('#root'); // For accessibility
+Modal.setAppElement('#root');
 
 const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit }) => {
   const [nodeType, setNodeType] = useState(node.type || '');
@@ -13,8 +13,6 @@ const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Dynamically generate available features based on CSV data or other logic
-      // For simplicity, using a static list here
       setAvailableFeatures([
         'feature1',
         'feature2',
@@ -89,7 +87,11 @@ const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit }) => {
                 <label htmlFor={`feature-${feature}`}>{feature}</label>
               </div>
             ))}
-            <button type="button" onClick={handleAddFeature} className="add-feature-button">
+            <button
+              type="button"
+              onClick={handleAddFeature}
+              className="add-feature-button"
+            >
               + Add Feature
             </button>
           </div>

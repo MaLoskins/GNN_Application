@@ -1,14 +1,14 @@
 /* src/components/ReactFlowWrapper/ReactFlowWrapper.css */
 
 .wrapper {
-  height: 50vh; /* Reduced height for compactness */
+  height: 50vh;
   width: 100%;
-  max-width: 1000px; /* Reduced max-width */
-  margin: 15px auto; /* Reduced margin */
+  max-width: 1000px;
+  margin: 15px auto;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background-color: var(--primary-color);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Subtler shadow */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   position: relative;
 }
 
@@ -21,9 +21,6 @@
 
 @media (max-width: 768px) {
   .wrapper {
-    height: 40vh; /* Further reduced height on smaller screens */
+    height: 40vh;
   }
 }
-
-
-

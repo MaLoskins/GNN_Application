@@ -1,6 +1,6 @@
 // src/App.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReactFlowProvider } from 'react-flow-renderer';
 import FileUploader from './components/FileUploader/FileUploader';
 import ConfigurationPanel from './components/ConfigurationPanel/ConfigurationPanel';
@@ -8,17 +8,15 @@ import GraphVisualizer from './components/GraphVisualizer/GraphVisualizer';
 import RelationshipModal from './components/RelationshipModal/RelationshipModal';
 import NodeEditModal from './components/NodeEditModal/NodeEditModal';
 import FeatureSpaceCreatorTab from './components/FeatureSpaceCreatorTab/FeatureSpaceCreatorTab';
-import ReactFlowWrapper from './components/ReactFlowWrapper/ReactFlowWrapper'; // Add this import
-import useGraph from './hooks/useGraph'; // Custom hook
-import { useEffect } from 'react';
+import ReactFlowWrapper from './components/ReactFlowWrapper/ReactFlowWrapper';
+import useGraph from './hooks/useGraph';
 import './App.css';
 
 function App() {
   const [csvData, setCsvData] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [activeTab, setActiveTab] = useState('graph'); // 'graph' or 'featureSpace'
+  const [activeTab, setActiveTab] = useState('graph');
 
-  // Use custom hook for graph state and logic
   const {
     config,
     graphData,
@@ -44,13 +42,11 @@ function App() {
     setNodeEditModalIsOpen,
   } = useGraph(csvData, columns);
 
-  // You can keep the window resize logic here or move it to another hook
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth * 0.9,
     height: (window.innerWidth * 0.9) * (2 / 3),
   });
 
-  // Handle window resize for responsive graph
   useEffect(() => {
     const handleResize = () => {
       setDimensions({
@@ -88,11 +84,13 @@ function App() {
         {activeTab === 'graph' && (
           <>
             {/* CSV Upload Section */}
-            <FileUploader onFileDrop={(data, fields) => {
-              setCsvData(data);
-              setColumns(fields);
-              handleFileDrop(data, fields);
-            }} />
+            <FileUploader
+              onFileDrop={(data, fields) => {
+                setCsvData(data);
+                setColumns(fields);
+                handleFileDrop(data, fields);
+              }}
+            />
 
             {/* Configuration Section for Selecting Nodes and Relationships */}
             {columns.length > 0 && (

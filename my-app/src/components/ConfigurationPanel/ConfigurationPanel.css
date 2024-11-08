@@ -2,26 +2,26 @@
 
 .config-section {
   text-align: left;
-  max-width: 800px; /* Reduced max-width for compactness */
-  margin: 10px auto; /* Reduced margin */
-  padding: 15px; /* Reduced padding */
+  max-width: 800px;
+  margin: 10px auto;
+  padding: 15px;
   border: 1px solid var(--border-color);
-  border-radius: 8px; /* Slightly reduced border-radius */
+  border-radius: 6px;
   background-color: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Reduced shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .config-section h2 {
   margin-top: 0;
   color: var(--accent-color);
-  font-size: 1.5rem; /* Standardized font size */
+  font-size: 1.4rem;
 }
 
 .node-selection {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; /* Reduced gap */
-  margin-bottom: 15px; /* Reduced margin */
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .node-selector {
@@ -30,7 +30,7 @@
 }
 
 .node-selector input {
-  margin-right: 8px; /* Reduced margin */
+  margin-right: 8px;
   width: 16px;
   height: 16px;
 }
@@ -38,23 +38,23 @@
 .node-selector label {
   cursor: pointer;
   color: var(--text-color);
-  font-size: 0.95rem; /* Slightly smaller font */
+  font-size: 0.95rem;
 }
 
 .config-section button {
   background-color: var(--button-background);
-  color: var(--button-text-color); /* Use button-text-color variable */
+  color: var(--button-text-color);
   border: none;
-  padding: 10px 18px; /* Reduced padding */
-  border-radius: 4px; /* Reduced border-radius */
+  padding: 10px 18px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.95rem; /* Slightly smaller font */
+  font-size: 0.95rem;
   transition: background-color 0.3s, transform 0.2s;
 }
 
 .config-section button:hover {
   background-color: var(--button-hover);
-  transform: translateY(-1px); /* Less movement */
+  transform: translateY(-1px);
 }
 
 .config-section button:disabled {
