@@ -117,6 +117,30 @@ h1 {
   color: var(--button-hover);
 }
 
+/* src/App.css or src/components/ReactFlowWrapper/ReactFlowWrapper.css */
+
+.custom-node-style {
+  /* Make nodes circles: */
+  width: 15%;
+  height: 10%;
+  border-radius: 20%;
+  background-color: var(--button-background); /* Example: Deep Orange */
+  color: #ffffff;
+  /* Center Text:*/
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+  font-weight: bold;
+  border: 2px solid var(--border-color);
+  /* Additional custom styles */
+}
+
+.custom-node-style:hover {
+  background-color: var(--button-hover);
+  transform: scale(1.05);
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .tab-navigation {

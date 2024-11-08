@@ -15,10 +15,9 @@ normalize_path() {
 root_directory=$(normalize_path "$1")
 shift
 
-# Remaining arguments are directories to ignore (if any)
+
 ignore_dirs=("$@")
 
-# Build the find command with ignore directories if provided
 ignore_params=()
 if [ "${#ignore_dirs[@]}" -gt 0 ]; then
   for ignore_dir in "${ignore_dirs[@]}"; do

@@ -7,9 +7,10 @@ import 'react-flow-renderer/dist/style.css'; // Import React Flow's default styl
 
 const ReactFlowWrapper = ({ nodes, edges, onNodesChange, onEdgesChange, onConnect, onNodeClick }) => {
   const handleNodeClick = (event, node) => {
-    onNodeClick(node);
+    if (onNodeClick) {
+      onNodeClick(node);
+    }
   };
-
   return (
     <div className="wrapper">
       <ReactFlow
@@ -18,7 +19,7 @@ const ReactFlowWrapper = ({ nodes, edges, onNodesChange, onEdgesChange, onConnec
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onNodeClick={handleNodeClick} // Handle node clicks
+        onNodeClick={handleNodeClick}
         deleteKeyCode={46} /* 'delete'-key */
         fitView
         style={{ width: '100%', height: '100%' }}
