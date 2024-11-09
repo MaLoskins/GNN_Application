@@ -171,11 +171,11 @@ h1 {
     max-height: 250px;
   }
 
-  .main-content {
-    margin-right: 0;
+  .sidebar.open + .main-content {
+    margin-right: 280px; /* Width of the sidebar */
   }
 
-  .sidebar.open + .main-content {
+  .sidebar.closed + .main-content {
     margin-right: 0;
   }
 }

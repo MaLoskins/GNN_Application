@@ -15,7 +15,11 @@ export const getRoot = async () => {
 
 export const processData = async (data, config, featureSpaceData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/process-data`, { data, config, featureSpaceData });
+    const response = await axios.post(`${API_BASE_URL}/process-data`, {
+      data,
+      config,
+      feature_space_data: featureSpaceData, // Use snake_case
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -36,6 +40,26 @@ export const downloadGraph = async (data, config, featureSpaceData, format) => {
     const response = await axios.post(
       `${API_BASE_URL}/download-graph`,
       { data, config, featureSpaceData, format },
+      {
+        responseType: 'blob',
+      }
+    );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const downloadPyGData = async (data, config, featureSpaceData, nodeLabelColumn, edgeLabelColumn) => {
+  try {
+    const extendedConfig = {
+      ...config,
+      node_label_column: nodeLabelColumn,
+      edge_label_column: edgeLabelColumn,
+    };
+    const response = await axios.post(
+      `${API_BASE_URL}/download-pyg`,
+      { data, config: extendedConfig, featureSpaceData },
       {
         responseType: 'blob',
       }

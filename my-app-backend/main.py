@@ -1,15 +1,20 @@
 # my-app-backend/main.py
 # To boot server use: uvicorn main:app --reload
 
+
 from fastapi import FastAPI, HTTPException, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ValidationError
 import pandas as pd
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import networkx as nx
 from networkx.readwrite import json_graph
-from DataFrameToGraph import DataFrameToGraph  # Ensure this class is accessible
-from FeatureSpaceCreator import FeatureSpaceCreator  # Import the FeatureSpaceCreator class
+from DataFrameToGraph import DataFrameToGraph
+from FeatureSpaceCreator import FeatureSpaceCreator
+import io
+import torch
+from fastapi.responses import Response
+from GraphDataToPyG import GraphDataToPyG
 
 app = FastAPI()
 
@@ -29,9 +34,12 @@ app.add_middleware(
 
 # Data Models
 class DataModel(BaseModel):
-    data: List[Dict[str, Any]]  # List of dictionaries representing CSV rows
-    config: Dict[str, Any]      # Configuration dictionary
-    featureSpaceData: Dict[str, Any] = None  # Optional feature space data
+    data: List[Dict[str, Any]]
+    config: Dict[str, Any]
+    featureSpaceData: Optional[Dict[str, Any]] = Field(None, alias='featureSpaceData')
+
+    class Config:
+        allow_population_by_field_name = True
 
 class FeatureSpaceRequest(BaseModel):
     data: List[Dict[str, Any]]  # List of dictionaries representing CSV rows
@@ -63,6 +71,10 @@ def process_data(model: DataModel):
         graph_data = json_graph.node_link_data(graph)
         
         return {"graph": graph_data}
+    except ValidationError as ve:
+        # Log the detailed validation errors
+        print(ve.json())
+        raise HTTPException(status_code=422, detail=ve.errors())
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -116,6 +128,45 @@ def download_graph(request: DownloadGraphRequest):
             return Response(content=gml_str, media_type='text/plain')
         else:
             raise HTTPException(status_code=400, detail='Unsupported format requested.')
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/download-pyg")
+def download_pyg(model: DataModel):
+    try:
+        df = pd.DataFrame(model.data)
+        config = model.config
+        graph_type = config.get('graph_type', 'directed')
+        feature_space_data = model.featureSpaceData
+
+        # Initialize DataFrameToGraph
+        df_to_graph = DataFrameToGraph(df, config, graph_type=graph_type)
+        graph = df_to_graph.get_graph()
+
+        # Serialize graph to node-link format
+        graph_data = json_graph.node_link_data(graph)
+
+        # Get node and edge label columns from config
+        node_label_column = config.get('node_label_column', None)
+        edge_label_column = config.get('edge_label_column', None)
+
+        # Convert to PyG Data object
+        converter = GraphDataToPyG(graph_data, node_label_column=node_label_column, edge_label_column=edge_label_column)
+        pyg_data = converter.convert()
+
+        # Serialize the PyG Data object to bytes
+        buffer = io.BytesIO()
+        torch.save(pyg_data, buffer)
+        buffer.seek(0)
+
+        # Return as a downloadable file
+        return Response(
+            content=buffer.getvalue(),
+            media_type='application/octet-stream',
+            headers={"Content-Disposition": f"attachment; filename=graph_data.pt"}
+        )
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

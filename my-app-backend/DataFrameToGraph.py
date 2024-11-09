@@ -20,10 +20,13 @@ logger = logging.getLogger(__name__)
 
 
 class DataFrameToGraph:
-    def __init__(self, 
-                 df: pd.DataFrame, 
-                 config: Dict[str, Any],
-                 graph_type: str = 'directed'):
+    def __init__(
+        self,
+        df: pd.DataFrame,
+        config: Dict[str, Any],
+        graph_type: str = 'directed',
+        feature_space: Optional[Dict[str, Any]] = None
+    ):
         """
         Initializes the DataFrameToGraph instance.
 
@@ -31,15 +34,28 @@ class DataFrameToGraph:
         - df (pd.DataFrame): The input DataFrame containing tabular data.
         - config (Dict[str, Any]): Configuration dictionary defining column roles.
         - graph_type (str): Type of the graph ('directed' or 'undirected').
+        - feature_space (Dict[str, Any]): Feature space data for nodes and edges.
         """
         self.df = df
         self.config = config
         self.graph_type = graph_type.lower()
+        self.feature_space = feature_space  # Store feature space
         self.graph = self._initialize_graph()
         self.node_registry = {}
         self.edge_registry = {}
         
         self._validate_config()
+
+        # Convert feature_space to DataFrame if necessary
+        if self.feature_space is not None:
+            # Convert feature_space to DataFrame
+            self.feature_space = pd.DataFrame(self.feature_space)
+            # Ensure that the index of feature_space is node IDs
+            if 'index' in self.feature_space.columns:
+                self.feature_space.set_index('index', inplace=True)
+            else:
+                self.feature_space.index = self.feature_space.index.astype(str)
+
         self._parse_dataframe()
 
     def _initialize_graph(self) -> nx.Graph:
@@ -146,7 +162,7 @@ class DataFrameToGraph:
                 features[feat] = ""
         return features
 
-    def _add_node(self, node_id: str, node_type: str, features: Dict[str, Any]):
+    def _add_node(self, node_id: str, node_type: Optional[str], features: Dict[str, Any]):
         """
         Adds a node to the graph or updates its features if it already exists.
 
@@ -155,6 +171,8 @@ class DataFrameToGraph:
         - node_type (str): Type/category of the node.
         - features (Dict[str, Any]): Features to assign to the node.
         """
+        node_type = node_type or 'default'  # Set default node type if None
+
         if node_id not in self.node_registry:
             self.node_registry[node_id] = {'type': node_type, 'features': features}
             self.graph.add_node(node_id, type=node_type, **features)

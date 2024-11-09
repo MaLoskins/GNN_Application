@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import './Sidebar.css';
-import { downloadGraph } from '../../api';
+import { downloadGraph, downloadPyGData } from '../../api'; // Import downloadPyGData
 import {
   FiChevronDown,
   FiChevronUp,
@@ -13,6 +13,7 @@ import {
   FiSettings,
   FiDatabase,
   FiLayers,
+  FiPackage, // New icon for PyG Data
 } from 'react-icons/fi';
 
 const Sidebar = ({ csvData, columns, config, graphData, featureSpaceData }) => {
@@ -69,6 +70,36 @@ const Sidebar = ({ csvData, columns, config, graphData, featureSpaceData }) => {
       alert('Failed to download graph.');
     }
   };
+    // State for PyG modal
+  const [pygSectionOpen, setPygSectionOpen] = useState(false);
+  const [nodeLabelColumn, setNodeLabelColumn] = useState('');
+  const [edgeLabelColumn, setEdgeLabelColumn] = useState('');
+
+  // Handle download PyG data
+  const handleDownloadPyGData = async () => {
+    try {
+      const response = await downloadPyGData(
+        csvData,
+        config,
+        featureSpaceData,
+        nodeLabelColumn,
+        edgeLabelColumn
+      );
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: 'application/octet-stream' });
+      // Create a link element to download the blob
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `graph_data.pt`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading PyG data:', error);
+      alert('Failed to download PyTorch Geometric data.');
+    }
+  };
 
   return (
     <>
@@ -84,215 +115,264 @@ const Sidebar = ({ csvData, columns, config, graphData, featureSpaceData }) => {
           </button>
         </div>
 
-        {/* CSV Data Information */}
-        <div className="sidebar-section">
-          <h3 onClick={() => setCsvSectionOpen(!csvSectionOpen)}>
-            <FiFileText className="section-icon" />
-            CSV Data
-            {csvSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
-          </h3>
-          {csvSectionOpen && (
-            <div className="section-content">
-              {csvData && csvData.length > 0 ? (
-                <>
-                  <p>
-                    <strong>Rows:</strong> {csvData.length}
-                  </p>
-                  <p>
-                    <strong>Columns:</strong> {columns.length}
-                  </p>
-                  {/* Sample Data */}
-                  <div className="sample-data">
+        <div className="sidebar-content">
+          {/* CSV Data Information */}
+          <div className="sidebar-section">
+            <h3 onClick={() => setCsvSectionOpen(!csvSectionOpen)}>
+              <FiFileText className="section-icon" />
+              CSV Data
+              {csvSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
+            </h3>
+            {csvSectionOpen && (
+              <div className="section-content">
+                {csvData && csvData.length > 0 ? (
+                  <>
                     <p>
-                      <strong>Sample Data:</strong>
+                      <strong>Rows:</strong> {csvData.length}
                     </p>
-                    <table className="sample-table">
-                      <thead>
-                        <tr>
-                          {columns.slice(0, 5).map((col) => (
-                            <th key={col}>{col}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {csvData.slice(0, 3).map((row, idx) => (
-                          <tr key={idx}>
-                            {columns.slice(0, 5).map((col) => (
-                              <td key={col}>{row[col]}</td>
+                    <p>
+                      <strong>Columns:</strong> {columns.length}
+                    </p>
+                    {/* Sample Data */}
+                    <div className="sample-data">
+                      <p>
+                        <strong>Sample Data:</strong>
+                      </p>
+                      <div className="table-container">
+                        <table className="sample-table">
+                          <thead>
+                            <tr>
+                              {columns.slice(0, 5).map((col) => (
+                                <th key={col}>{col}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {csvData.slice(0, 3).map((row, idx) => (
+                              <tr key={idx}>
+                                {columns.slice(0, 5).map((col) => (
+                                  <td key={col}>{row[col]}</td>
+                                ))}
+                              </tr>
                             ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              ) : (
-                <p>No data uploaded.</p>
-              )}
-            </div>
-          )}
-        </div>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p>No data uploaded.</p>
+                )}
+              </div>
+            )}
+          </div>
 
-        {/* Graph Configuration Information */}
-        <div className="sidebar-section">
-          <h3 onClick={() => setConfigSectionOpen(!configSectionOpen)}>
-            <FiSettings className="section-icon" />
-            Graph Configuration
-            {configSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
-          </h3>
-          {configSectionOpen && (
-            <div className="section-content">
-              {config && config.nodes && config.nodes.length > 0 ? (
-                <>
-                  <p>
-                    <strong>Nodes Configured:</strong> {config.nodes.length}
-                  </p>
-                  <ul className="config-list">
-                    {config.nodes.map((node) => (
-                      <li key={node.id}>
-                        <button
-                          className="config-item"
-                          onClick={() =>
-                            alert(
-                              `Node ID: ${node.id}\nType: ${node.type || 'default'}\nFeatures: ${
-                                node.features.length > 0 ? node.features.join(', ') : 'None'
-                              }`
-                            )
-                          }
-                        >
-                          {node.id} ({node.type || 'default'})
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <p>No nodes configured.</p>
-              )}
-              {config && config.relationships && config.relationships.length > 0 ? (
-                <>
-                  <p>
-                    <strong>Relationships Configured:</strong> {config.relationships.length}
-                  </p>
-                  <ul className="config-list">
-                    {config.relationships.map((rel, index) => (
-                      <li key={index}>
-                        <button
-                          className="config-item"
-                          onClick={() =>
-                            alert(
-                              `Source: ${rel.source}\nTarget: ${rel.target}\nType: ${rel.type}\nFeatures: ${
-                                rel.features.length > 0 ? rel.features.join(', ') : 'None'
-                              }`
-                            )
-                          }
-                        >
-                          {rel.source} - [{rel.type}] -&gt; {rel.target}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <p>No relationships configured.</p>
-              )}
-            </div>
-          )}
-        </div>
+          {/* Graph Configuration Information */}
+          <div className="sidebar-section">
+            <h3 onClick={() => setConfigSectionOpen(!configSectionOpen)}>
+              <FiSettings className="section-icon" />
+              Graph Configuration
+              {configSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
+            </h3>
+            {configSectionOpen && (
+              <div className="section-content">
+                {config && config.nodes && config.nodes.length > 0 ? (
+                  <>
+                    <p>
+                      <strong>Nodes Configured:</strong> {config.nodes.length}
+                    </p>
+                    <ul className="config-list">
+                      {config.nodes.map((node) => (
+                        <li key={node.id}>
+                          <button
+                            className="config-item"
+                            onClick={() =>
+                              alert(
+                                `Node ID: ${node.id}\nType: ${node.type || 'default'}\nFeatures: ${
+                                  node.features.length > 0 ? node.features.join(', ') : 'None'
+                                }`
+                              )
+                            }
+                          >
+                            {node.id} ({node.type || 'default'})
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p>No nodes configured.</p>
+                )}
+                {config && config.relationships && config.relationships.length > 0 ? (
+                  <>
+                    <p>
+                      <strong>Relationships Configured:</strong> {config.relationships.length}
+                    </p>
+                    <ul className="config-list">
+                      {config.relationships.map((rel, index) => (
+                        <li key={index}>
+                          <button
+                            className="config-item"
+                            onClick={() =>
+                              alert(
+                                `Source: ${rel.source}\nTarget: ${rel.target}\nType: ${rel.type}\nFeatures: ${
+                                  rel.features.length > 0 ? rel.features.join(', ') : 'None'
+                                }`
+                              )
+                            }
+                          >
+                            {rel.source} - [{rel.type}] -&gt; {rel.target}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p>No relationships configured.</p>
+                )}
+              </div>
+            )}
+          </div>
 
-        {/* Graph Data Information */}
-        <div className="sidebar-section">
-          <h3 onClick={() => setGraphDataSectionOpen(!graphDataSectionOpen)}>
-            <FiDatabase className="section-icon" />
-            Graph Data
-            {graphDataSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
-          </h3>
-          {graphDataSectionOpen && (
-            <div className="section-content">
-              {graphData ? (
-                <>
-                  <p>
-                    <strong>Total Nodes:</strong> {graphData.nodes.length}
-                  </p>
-                  <p>
-                    <strong>Total Links:</strong> {graphData.links.length}
-                  </p>
-                  {/* Download Graph */}
-                  <div className="download-section">
-                    <label htmlFor="download-format">Download Format:</label>
-                    <select
-                      id="download-format"
-                      value={downloadFormat}
-                      onChange={(e) => setDownloadFormat(e.target.value)}
-                    >
-                      <option value="graphml">GraphML</option>
-                      <option value="gexf">GEXF</option>
-                      <option value="gml">GML</option>
-                    </select>
-                    <button className="download-button" onClick={handleDownloadGraph}>
-                      <FiDownload className="button-icon" />
-                      Download Graph
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <p>No graph data available.</p>
-              )}
-            </div>
-          )}
-        </div>
+          {/* Graph Data Information */}
+          <div className="sidebar-section">
+            <h3 onClick={() => setGraphDataSectionOpen(!graphDataSectionOpen)}>
+              <FiDatabase className="section-icon" />
+              Graph Data
+              {graphDataSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
+            </h3>
+            {graphDataSectionOpen && (
+              <div className="section-content">
+                {graphData ? (
+                  <>
+                    <p>
+                      <strong>Total Nodes:</strong> {graphData.nodes.length}
+                    </p>
+                    <p>
+                      <strong>Total Links:</strong> {graphData.links.length}
+                    </p>
+                    {/* Download Graph */}
+                    <div className="download-section">
+                      <label htmlFor="download-format">Download Format:</label>
+                      <select
+                        id="download-format"
+                        value={downloadFormat}
+                        onChange={(e) => setDownloadFormat(e.target.value)}
+                      >
+                        <option value="graphml">GraphML</option>
+                        <option value="gexf">GEXF</option>
+                        <option value="gml">GML</option>
+                      </select>
+                      <button className="download-button" onClick={handleDownloadGraph}>
+                        <FiDownload className="button-icon" />
+                        Download Graph
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p>No graph data available.</p>
+                )}
+              </div>
+            )}
+          </div>
 
-        {/* Feature Space Information */}
+          {/* Feature Space Information */}
+          <div className="sidebar-section">
+            <h3 onClick={() => setFeatureSpaceSectionOpen(!featureSpaceSectionOpen)}>
+              <FiLayers className="section-icon" />
+              Feature Space
+              {featureSpaceSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
+            </h3>
+            {featureSpaceSectionOpen && (
+              <div className="section-content">
+                {featureSpaceData ? (
+                  <>
+                    <p>
+                      <strong>Total Features:</strong> {featureSpaceData.features.length}
+                    </p>
+                    <p>
+                      <strong>Total Embedding Dimensions:</strong>{' '}
+                      {calculateTotalEmbeddingDimensions()}
+                    </p>
+                    <p>
+                      <strong>Text Features:</strong> {countFeatureTypes().text}
+                    </p>
+                    <p>
+                      <strong>Numeric Features:</strong> {countFeatureTypes().numeric}
+                    </p>
+                    {/* Feature Details */}
+                    <ul className="feature-list">
+                      {featureSpaceData.features.map((feature, idx) => (
+                        <li key={idx}>
+                          <button
+                            className="config-item"
+                            onClick={() =>
+                              alert(
+                                `Feature: ${feature.column_name}\nType: ${feature.type}\nEmbedding Dimension: ${
+                                  feature.embedding_dim || 'N/A'
+                                }`
+                              )
+                            }
+                          >
+                            {feature.column_name} ({feature.type})
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p>No feature space created.</p>
+                )}
+              </div>
+            )}
+          </div>
+        {/* PyTorch Geometric Data Section */}
         <div className="sidebar-section">
-          <h3 onClick={() => setFeatureSpaceSectionOpen(!featureSpaceSectionOpen)}>
-            <FiLayers className="section-icon" />
-            Feature Space
-            {featureSpaceSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
+          <h3 onClick={() => setPygSectionOpen(!pygSectionOpen)}>
+            <FiPackage className="section-icon" />
+            PyTorch Geometric Data
+            {pygSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
           </h3>
-          {featureSpaceSectionOpen && (
+          {pygSectionOpen && (
             <div className="section-content">
-              {featureSpaceData ? (
-                <>
-                  <p>
-                    <strong>Total Features:</strong> {featureSpaceData.features.length}
-                  </p>
-                  <p>
-                    <strong>Total Embedding Dimensions:</strong>{' '}
-                    {calculateTotalEmbeddingDimensions()}
-                  </p>
-                  <p>
-                    <strong>Text Features:</strong> {countFeatureTypes().text}
-                  </p>
-                  <p>
-                    <strong>Numeric Features:</strong> {countFeatureTypes().numeric}
-                  </p>
-                  {/* Feature Details */}
-                  <ul className="feature-list">
-                    {featureSpaceData.features.map((feature, idx) => (
-                      <li key={idx}>
-                        <button
-                          className="config-item"
-                          onClick={() =>
-                            alert(
-                              `Feature: ${feature.column_name}\nType: ${feature.type}\nEmbedding Dimension: ${
-                                feature.embedding_dim || 'N/A'
-                              }`
-                            )
-                          }
-                        >
-                          {feature.column_name} ({feature.type})
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <p>No feature space created.</p>
-              )}
+              <p>Select label columns (optional):</p>
+              <label>
+                Node Label Column:
+                <select
+                  value={nodeLabelColumn}
+                  onChange={(e) => setNodeLabelColumn(e.target.value)}
+                >
+                  <option value="">None</option>
+                  {columns.map((col) => (
+                    <option key={col} value={col}>
+                      {col}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Edge Label Column:
+                <select
+                  value={edgeLabelColumn}
+                  onChange={(e) => setEdgeLabelColumn(e.target.value)}
+                >
+                  <option value="">None</option>
+                  {columns.map((col) => (
+                    <option key={col} value={col}>
+                      {col}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button className="download-button" onClick={handleDownloadPyGData}>
+                <FiDownload className="button-icon" />
+                Download PyG Data
+              </button>
             </div>
           )}
         </div>
       </div>
+    </div>
 
       {/* Sidebar Toggle Button */}
       {!isSidebarOpen && (
