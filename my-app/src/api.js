@@ -13,9 +13,9 @@ export const getRoot = async () => {
   }
 };
 
-export const processData = async (data, config) => {
+export const processData = async (data, config, featureSpaceData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/process-data`, { data, config });
+    const response = await axios.post(`${API_BASE_URL}/process-data`, { data, config, featureSpaceData });
     return response.data;
   } catch (error) {
     throw error;
@@ -26,6 +26,21 @@ export const createFeatureSpace = async (data, config) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/create-feature-space`, { data, config });
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const downloadGraph = async (data, config, featureSpaceData, format) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/download-graph`,
+      { data, config, featureSpaceData, format },
+      {
+        responseType: 'blob',
+      }
+    );
+    return response;
   } catch (error) {
     throw error;
   }

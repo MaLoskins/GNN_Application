@@ -9,6 +9,7 @@ import RelationshipModal from './components/RelationshipModal/RelationshipModal'
 import NodeEditModal from './components/NodeEditModal/NodeEditModal';
 import FeatureSpaceCreatorTab from './components/FeatureSpaceCreatorTab/FeatureSpaceCreatorTab';
 import ReactFlowWrapper from './components/ReactFlowWrapper/ReactFlowWrapper';
+import Sidebar from './components/Sidebar/Sidebar'; // Import the Sidebar component
 import useGraph from './hooks/useGraph';
 import './App.css';
 
@@ -35,7 +36,7 @@ function App() {
     onNodesChange,
     onEdgesChange,
     onConnectHandler,
-    onNodeClickHandler, // Added this line
+    onNodeClickHandler,
     handleSaveRelationship,
     handleSaveNodeEdit,
     setRelationshipModalIsOpen,
@@ -62,95 +63,106 @@ function App() {
   return (
     <ReactFlowProvider>
       <div className="App">
-        <h1>CSV to Graph Application</h1>
+        {/* Sidebar */}
+        <Sidebar
+          csvData={csvData}
+          columns={columns}
+          config={config}
+          graphData={graphData}
+          featureSpaceData={featureSpaceData}
+        />
 
-        {/* Tab Navigation */}
-        <div className="tab-navigation">
-          <button
-            className={`tab-button ${activeTab === 'graph' ? 'active' : ''}`}
-            onClick={() => setActiveTab('graph')}
-          >
-            Graph
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'featureSpace' ? 'active' : ''}`}
-            onClick={() => setActiveTab('featureSpace')}
-          >
-            Feature Space Creator
-          </button>
-        </div>
+        <div className="main-content">
+          <h1>CSV to Graph Application</h1>
 
-        {/* Tab Content */}
-        {activeTab === 'graph' && (
-          <>
-            {/* CSV Upload Section */}
-            <FileUploader
-              onFileDrop={(data, fields) => {
-                setCsvData(data);
-                setColumns(fields);
-                handleFileDrop(data, fields);
-              }}
-            />
+          {/* Tab Navigation */}
+          <div className="tab-navigation">
+            <button
+              className={`tab-button ${activeTab === 'graph' ? 'active' : ''}`}
+              onClick={() => setActiveTab('graph')}
+            >
+              Graph
+            </button>
+            <button
+              className={`tab-button ${activeTab === 'featureSpace' ? 'active' : ''}`}
+              onClick={() => setActiveTab('featureSpace')}
+            >
+              Feature Space Creator
+            </button>
+          </div>
 
-            {/* Configuration Section for Selecting Nodes and Relationships */}
-            {columns.length > 0 && (
-              <ConfigurationPanel
+          {/* Tab Content */}
+          {activeTab === 'graph' && (
+            <>
+              {/* CSV Upload Section */}
+              <FileUploader
+                onFileDrop={(data, fields) => {
+                  setCsvData(data);
+                  setColumns(fields);
+                  handleFileDrop(data, fields);
+                }}
+              />
+
+              {/* Configuration Section for Selecting Nodes and Relationships */}
+              {columns.length > 0 && (
+                <ConfigurationPanel
+                  columns={columns}
+                  onSelectNode={handleSelectNode}
+                  onSubmit={handleSubmit}
+                  loading={loading}
+                  selectedNodes={config.nodes.map((n) => n.id)}
+                />
+              )}
+
+              {/* React Flow Configurator */}
+              {columns.length > 0 && (
+                <ReactFlowWrapper
+                  nodes={nodes}
+                  edges={edges}
+                  onNodesChange={onNodesChange}
+                  onEdgesChange={onEdgesChange}
+                  onConnect={onConnectHandler}
+                  onNodeClick={onNodeClickHandler}
+                />
+              )}
+
+              {/* Graph Visualization Section */}
+              {graphData && (
+                <GraphVisualizer graphData={graphData} dimensions={dimensions} />
+              )}
+
+              {/* Relationship Modal */}
+              <RelationshipModal
+                isOpen={relationshipModalIsOpen}
+                onRequestClose={() => setRelationshipModalIsOpen(false)}
                 columns={columns}
-                onSelectNode={handleSelectNode}
-                onSubmit={handleSubmit}
-                loading={loading}
-                selectedNodes={config.nodes.map((n) => n.id)}
+                onSaveRelationship={handleSaveRelationship}
+                featureSpaceData={featureSpaceData}
               />
-            )}
 
-            {/* React Flow Configurator */}
-            {columns.length > 0 && (
-              <ReactFlowWrapper
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnectHandler}
-                onNodeClick={onNodeClickHandler} // Pass the handler here
-              />
-            )}
+              {/* Node Edit Modal */}
+              {currentNode && (
+                <NodeEditModal
+                  isOpen={nodeEditModalIsOpen}
+                  onRequestClose={() => setNodeEditModalIsOpen(false)}
+                  node={currentNode}
+                  onSaveNodeEdit={handleSaveNodeEdit}
+                  featureSpaceData={featureSpaceData}
+                />
+              )}
+            </>
+          )}
 
-            {/* Graph Visualization Section */}
-            {graphData && (
-              <GraphVisualizer graphData={graphData} dimensions={dimensions} />
-            )}
-
-            {/* Relationship Modal */}
-            <RelationshipModal
-              isOpen={relationshipModalIsOpen}
-              onRequestClose={() => setRelationshipModalIsOpen(false)}
+          {activeTab === 'featureSpace' && (
+            <FeatureSpaceCreatorTab
+              csvData={csvData}
               columns={columns}
-              onSaveRelationship={handleSaveRelationship}
-              featureSpaceData={featureSpaceData} // Pass featureSpaceData
+              onSubmit={handleFeatureSpaceSubmit}
+              loading={loading}
+              featureSpaceData={featureSpaceData}
             />
-
-            {/* Node Edit Modal */}
-            {currentNode && (
-              <NodeEditModal
-                isOpen={nodeEditModalIsOpen}
-                onRequestClose={() => setNodeEditModalIsOpen(false)}
-                node={currentNode}
-                onSaveNodeEdit={handleSaveNodeEdit}
-                featureSpaceData={featureSpaceData} // Pass featureSpaceData
-              />
-            )}
-          </>
-        )}
-
-        {activeTab === 'featureSpace' && (
-          <FeatureSpaceCreatorTab
-            csvData={csvData}
-            columns={columns}
-            onSubmit={handleFeatureSpaceSubmit}
-            loading={loading}
-            featureSpaceData={featureSpaceData}
-          />
-        )}
+          )}
+        </div>
       </div>
     </ReactFlowProvider>
   );

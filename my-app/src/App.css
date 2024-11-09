@@ -40,6 +40,20 @@ body {
   padding: 15px;
   max-width: 1000px;
   margin: 0 auto;
+  display: flex;
+}
+
+.main-content {
+  flex: 1;
+  transition: margin-right 0.3s ease-in-out;
+}
+
+.sidebar.open + .main-content {
+  margin-right: 280px; /* Width of the sidebar */
+}
+
+.sidebar.closed + .main-content {
+  margin-right: 0;
 }
 
 h1 {
@@ -155,5 +169,13 @@ h1 {
 
   .feature-space-output pre {
     max-height: 250px;
+  }
+
+  .main-content {
+    margin-right: 0;
+  }
+
+  .sidebar.open + .main-content {
+    margin-right: 0;
   }
 }
