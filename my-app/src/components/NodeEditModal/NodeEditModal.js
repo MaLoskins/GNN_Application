@@ -6,24 +6,22 @@ import './NodeEditModal.css';
 
 Modal.setAppElement('#root');
 
-const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit }) => {
+const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit, featureSpaceData }) => {
   const [nodeType, setNodeType] = useState(node.type || '');
   const [nodeFeatures, setNodeFeatures] = useState(node.features || []);
   const [availableFeatures, setAvailableFeatures] = useState([]);
 
   useEffect(() => {
     if (isOpen) {
-      setAvailableFeatures([
-        'feature1',
-        'feature2',
-        'feature3',
-        'feature4',
-        'feature5',
-      ]);
+      const features =
+        featureSpaceData && featureSpaceData.features
+          ? featureSpaceData.features.map((f) => f.column_name)
+          : [];
+      setAvailableFeatures(features);
       setNodeType(node.type || '');
       setNodeFeatures(node.features || []);
     }
-  }, [isOpen, node]);
+  }, [isOpen, node, featureSpaceData]);
 
   const handleFeatureChange = (e) => {
     const { value, checked } = e.target;
@@ -36,10 +34,7 @@ const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!nodeType.trim()) {
-      alert('Please enter a node type.');
-      return;
-    }
+    // Allow saving even if nodeType is empty (will default to 'default' later)
     onSaveNodeEdit({ nodeType, nodeFeatures });
   };
 
@@ -68,7 +63,6 @@ const NodeEditModal = ({ isOpen, onRequestClose, node, onSaveNodeEdit }) => {
             id="node-type"
             value={nodeType}
             onChange={(e) => setNodeType(e.target.value)}
-            required
             placeholder="e.g., User, Post"
           />
         </div>

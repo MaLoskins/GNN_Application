@@ -1,6 +1,6 @@
 // src/hooks/useGraph.js
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { processData, createFeatureSpace } from '../api';
 import { addEdge, useNodesState, useEdgesState } from 'react-flow-renderer';
 
@@ -10,31 +10,27 @@ const useGraph = (csvData, columns) => {
   const [featureSpaceData, setFeatureSpaceData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Initialize nodes and edges using hooks
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // Modal States for Relationships
   const [relationshipModalIsOpen, setRelationshipModalIsOpen] = useState(false);
   const [currentEdge, setCurrentEdge] = useState(null);
 
-  // Modal States for Node Editing
   const [nodeEditModalIsOpen, setNodeEditModalIsOpen] = useState(false);
   const [currentNode, setCurrentNode] = useState(null);
 
-  // Handle node click for editing
-  const onNodeClickHandler = (node) => {
+  const onNodeClickHandler = (event, node) => {
     setCurrentNode(node);
     setNodeEditModalIsOpen(true);
   };
 
-  // Handle file drop
   const handleFileDrop = (data, fields) => {
     initializeConfig(fields);
     initializeReactFlow(fields);
+    setFeatureSpaceData(null);
+    setGraphData(null);
   };
 
-  // Initialize config with selectable nodes
   const initializeConfig = (fields) => {
     setConfig({
       nodes: [],
@@ -43,13 +39,11 @@ const useGraph = (csvData, columns) => {
     });
   };
 
-  // Initialize React Flow nodes
   const initializeReactFlow = (fields) => {
     setNodes([]);
     setEdges([]);
   };
 
-  // Handle relationship submission
   const handleSaveRelationship = ({ relationshipType, relationshipFeatures }) => {
     if (!relationshipType) {
       alert('Please enter a relationship type.');
@@ -87,18 +81,13 @@ const useGraph = (csvData, columns) => {
     setCurrentEdge(null);
   };
 
-  // Handle edge creation
   const onConnectHandler = (params) => {
     setCurrentEdge(params);
     setRelationshipModalIsOpen(true);
   };
 
-  // Handle node type and feature updates
   const handleSaveNodeEdit = ({ nodeType, nodeFeatures }) => {
-    if (!nodeType) {
-      alert('Please enter a node type.');
-      return;
-    }
+    nodeType = nodeType || 'default';
 
     setConfig((prevConfig) => {
       const updatedNodes = prevConfig.nodes.map((n) => {
@@ -124,7 +113,8 @@ const useGraph = (csvData, columns) => {
           return {
             ...node,
             type: nodeType,
-            data: { ...node.data, label: `${node.data.label} (${nodeType})` },
+            data: { ...node.data, label: `${node.data.label.split(' ')[0]} (${nodeType})` },
+            features: nodeFeatures,
           };
         }
         return node;
@@ -135,7 +125,6 @@ const useGraph = (csvData, columns) => {
     setCurrentNode(null);
   };
 
-  // Handle node selection for inclusion as a node in the graph
   const handleSelectNode = (column) => {
     const isSelected = config.nodes.find((n) => n.id === column);
 
@@ -149,9 +138,11 @@ const useGraph = (csvData, columns) => {
 
       setEdges((eds) => eds.filter((e) => e.source !== column && e.target !== column));
     } else {
+      const newNodeConfig = { id: column, type: 'default', features: [] };
+
       setConfig((prevConfig) => ({
         ...prevConfig,
-        nodes: [...prevConfig.nodes, { id: column, type: 'default', features: [] }],
+        nodes: [...prevConfig.nodes, newNodeConfig],
       }));
 
       const newNode = {
@@ -163,22 +154,17 @@ const useGraph = (csvData, columns) => {
           y: Math.random() * 400 - 200,
         },
         className: 'custom-node-style',
+        features: [],
       };
 
       setNodes((nds) => nds.concat(newNode));
     }
   };
 
-  // Handle form submission for graph processing
   const handleSubmit = async () => {
-    // Basic validation
     for (let node of config.nodes) {
       if (!node.id) {
         alert('Please select an ID column for all nodes.');
-        return;
-      }
-      if (!node.type || node.type === 'default') {
-        alert(`Please specify a valid type for node '${node.id}'.`);
         return;
       }
     }
@@ -195,18 +181,17 @@ const useGraph = (csvData, columns) => {
 
     setLoading(true);
     try {
-      const response = await processData(csvData, config);
+      const response = await processData(
+        csvData,
+        config,
+        featureSpaceData ? JSON.stringify(featureSpaceData) : null
+      );
       const receivedGraph = response.graph;
 
       const degrees = {};
       receivedGraph.links.forEach((link) => {
-        if (receivedGraph.directed) {
-          degrees[link.source] = (degrees[link.source] || 0) + 1;
-          degrees[link.target] = (degrees[link.target] || 0) + 1;
-        } else {
-          degrees[link.source] = (degrees[link.source] || 0) + 1;
-          degrees[link.target] = (degrees[link.target] || 0) + 1;
-        }
+        degrees[link.source] = (degrees[link.source] || 0) + 1;
+        degrees[link.target] = (degrees[link.target] || 0) + 1;
       });
 
       const nodesWithSize = receivedGraph.nodes.map((node) => ({
@@ -227,7 +212,6 @@ const useGraph = (csvData, columns) => {
     setLoading(false);
   };
 
-  // Handle Feature Space submission
   const handleFeatureSpaceSubmit = async (featureConfig) => {
     if (csvData.length === 0) {
       alert('Please upload and process CSV data first.');
@@ -254,20 +238,6 @@ const useGraph = (csvData, columns) => {
     setLoading(false);
   };
 
-  // Update config.nodes whenever nodes state changes (e.g., after node edits)
-  useEffect(() => {
-    if (columns.length === 0) return;
-    setConfig((prevConfig) => ({
-      ...prevConfig,
-      nodes: nodes.map((node) => ({
-        id: node.id,
-        type: node.type || 'default',
-        features: prevConfig.nodes.find((n) => n.id === node.id)?.features || [],
-      })),
-    }));
-  }, [nodes, columns]);
-
-  // Return all necessary state and functions
   return {
     config,
     graphData,

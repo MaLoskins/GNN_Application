@@ -16,6 +16,7 @@ Thumbs.db
 
 # Logs
 *.log
+*.txt
 
 # IDE/editor settings (common for VSCode, JetBrains IDEs, etc.)
 .vscode/

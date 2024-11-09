@@ -24,6 +24,29 @@ function FeatureSpaceCreatorTab({ csvData, columns, onSubmit, loading, featureSp
   const handleFeatureChange = (index, field, value) => {
     const updatedFeatures = [...features];
     updatedFeatures[index][field] = value;
+
+    // Reset irrelevant fields when type changes
+    if (field === 'type') {
+      if (value === 'text') {
+        // Reset numeric fields
+        updatedFeatures[index] = {
+          ...updatedFeatures[index],
+          data_type: 'float',
+          processing: 'none',
+          projection_method: 'none',
+          projection_target_dim: 1,
+        };
+      } else if (value === 'numeric') {
+        // Reset text fields
+        updatedFeatures[index] = {
+          ...updatedFeatures[index],
+          embedding_method: 'bert',
+          embedding_dim: 768,
+          dim_reduction_method: 'none',
+          dim_reduction_target_dim: 100,
+        };
+      }
+    }
     setFeatures(updatedFeatures);
   };
 
@@ -71,6 +94,21 @@ function FeatureSpaceCreatorTab({ csvData, columns, onSubmit, loading, featureSp
           alert(`Feature ${i + 1}: Please specify a target dimension for dimensionality reduction.`);
           return;
         }
+        // Validate embedding_dim based on embedding_method
+        if (feature.embedding_method === 'glove') {
+          const validGloveDims = [50, 100, 200, 300];
+          if (!validGloveDims.includes(parseInt(feature.embedding_dim, 10))) {
+            alert(`Feature ${i + 1}: Invalid embedding dimension for GloVe. Valid options are 50, 100, 200, 300.`);
+            return;
+          }
+        }
+        if (feature.embedding_method === 'bert') {
+          const validBertDims = [768]; // For 'bert-base-uncased'
+          if (!validBertDims.includes(parseInt(feature.embedding_dim, 10))) {
+            alert(`Feature ${i + 1}: Invalid embedding dimension for BERT. Valid option is 768.`);
+            return;
+          }
+        }
       }
 
       if (feature.type === 'numeric') {
@@ -78,10 +116,10 @@ function FeatureSpaceCreatorTab({ csvData, columns, onSubmit, loading, featureSp
           alert(`Feature ${i + 1}: Please select a data type.`);
           return;
         }
-        if (feature.processing !== 'none' && !feature.processing) {
+        if (feature.processing === 'none') {
           alert(`Feature ${i + 1}: Please select a processing method.`);
           return;
-        }
+        }        
         if (feature.projection_method !== 'none' && !feature.projection_target_dim) {
           alert(`Feature ${i + 1}: Please specify a target dimension for projection.`);
           return;
@@ -105,6 +143,23 @@ function FeatureSpaceCreatorTab({ csvData, columns, onSubmit, loading, featureSp
               method: feature.dim_reduction_method,
               target_dim: parseInt(feature.dim_reduction_target_dim, 10),
             };
+          }
+          // Add additional_params
+          featureConfig.additional_params = {
+            bert_model_name: 'bert-base-uncased',
+            bert_cache_dir: 'Bert_Cache',
+            glove_cache_path: 'Glove_Cache',
+            word2vec_model_path: null,
+          };
+          // For GloVe embeddings
+          if (feature.embedding_method === 'glove') {
+            featureConfig.additional_params.glove_cache_path = 'Glove_Cache';
+            featureConfig.additional_params.word2vec_model_path = null;
+          }
+          // For Word2Vec embeddings
+          if (feature.embedding_method === 'word2vec') {
+            featureConfig.additional_params.word2vec_model_path = null; // Or set a path if you have a pre-trained model
+            featureConfig.additional_params.glove_cache_path = 'Glove_Cache'; // Or set to null if not needed
           }
         }
         if (type === 'numeric') {
@@ -231,13 +286,37 @@ function FeatureSpaceCreatorTab({ csvData, columns, onSubmit, loading, featureSp
 
                 <div className="form-group">
                   <label>Embedding Dimension:</label>
-                  <input
-                    type="number"
-                    value={feature.embedding_dim}
-                    onChange={(e) => handleFeatureChange(index, 'embedding_dim', e.target.value)}
-                    min="1"
-                    required
-                  />
+                  {feature.embedding_method === 'bert' && (
+                    <select
+                      value={feature.embedding_dim}
+                      onChange={(e) => handleFeatureChange(index, 'embedding_dim', e.target.value)}
+                      required
+                    >
+                      <option value="768">768</option>
+                      {/* Add other BERT embedding dimensions if necessary */}
+                    </select>
+                  )}
+                  {feature.embedding_method === 'glove' && (
+                    <select
+                      value={feature.embedding_dim}
+                      onChange={(e) => handleFeatureChange(index, 'embedding_dim', e.target.value)}
+                      required
+                    >
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                      <option value="200">200</option>
+                      <option value="300">300</option>
+                    </select>
+                  )}
+                  {feature.embedding_method === 'word2vec' && (
+                    <input
+                      type="number"
+                      value={feature.embedding_dim}
+                      onChange={(e) => handleFeatureChange(index, 'embedding_dim', e.target.value)}
+                      min="1"
+                      required
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">

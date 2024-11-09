@@ -12,12 +12,6 @@ const ReactFlowWrapper = ({
   onConnect,
   onNodeClick,
 }) => {
-  const handleNodeClick = (event, node) => {
-    if (onNodeClick) {
-      onNodeClick(node);
-    }
-  };
-
   return (
     <div className="wrapper">
       <ReactFlow
@@ -26,7 +20,7 @@ const ReactFlowWrapper = ({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onNodeClick={handleNodeClick}
+        onNodeClick={onNodeClick} // Ensure this prop is passed
         deleteKeyCode={46}
         fitView
         style={{ width: '100%', height: '100%' }}

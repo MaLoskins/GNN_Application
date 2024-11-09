@@ -35,7 +35,7 @@ function App() {
     onNodesChange,
     onEdgesChange,
     onConnectHandler,
-    onNodeClickHandler,
+    onNodeClickHandler, // Added this line
     handleSaveRelationship,
     handleSaveNodeEdit,
     setRelationshipModalIsOpen,
@@ -44,14 +44,14 @@ function App() {
 
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth * 0.9,
-    height: (window.innerWidth * 0.9) * (2 / 3),
+    height: window.innerWidth * 0.9 * (2 / 3),
   });
 
   useEffect(() => {
     const handleResize = () => {
       setDimensions({
         width: window.innerWidth * 0.9,
-        height: (window.innerWidth * 0.9) * (2 / 3),
+        height: window.innerWidth * 0.9 * (2 / 3),
       });
     };
 
@@ -111,7 +111,7 @@ function App() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnectHandler}
-                onNodeClick={onNodeClickHandler}
+                onNodeClick={onNodeClickHandler} // Pass the handler here
               />
             )}
 
@@ -126,6 +126,7 @@ function App() {
               onRequestClose={() => setRelationshipModalIsOpen(false)}
               columns={columns}
               onSaveRelationship={handleSaveRelationship}
+              featureSpaceData={featureSpaceData} // Pass featureSpaceData
             />
 
             {/* Node Edit Modal */}
@@ -135,6 +136,7 @@ function App() {
                 onRequestClose={() => setNodeEditModalIsOpen(false)}
                 node={currentNode}
                 onSaveNodeEdit={handleSaveNodeEdit}
+                featureSpaceData={featureSpaceData} // Pass featureSpaceData
               />
             )}
           </>
