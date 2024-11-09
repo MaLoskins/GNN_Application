@@ -798,7 +798,7 @@ graph TD
     end
     
     %% Styling
-    classDef frontend fill:#f0f8ff,stroke:#333,stroke-width:2px;
+    classDef frontend fill:#1f1f1f,stroke:#333333,stroke-width:2px,color:#ffffff;
     class Frontend frontend;
 ```
 
@@ -822,7 +822,7 @@ graph TD
     end
     
     %% Styling
-    classDef backend fill:#e0ffff,stroke:#333,stroke-width:2px;
+    classDef backend fill:#1e1e1e,stroke:#333333,stroke-width:2px,color:#ffffff;
     class Backend backend;
 ```
 
@@ -845,7 +845,7 @@ graph TD
     end
     
     %% Styling
-    classDef pipeline fill:#dcdcdc,stroke:#333,stroke-width:2px;
+    classDef pipeline fill:#2c2c2c,stroke:#333333,stroke-width:2px,color:#ffffff;
     class Graph_Construction_Pipeline pipeline;
 ```
 
@@ -891,7 +891,7 @@ graph TD
     end
     
     %% Styling
-    classDef pipeline fill:#fafad2,stroke:#333,stroke-width:2px;
+    classDef pipeline fill:#1f1f1f,stroke:#333333,stroke-width:2px,color:#ffffff;
     class Feature_Space_Creation_Pipeline pipeline;
 ```
 
@@ -908,7 +908,7 @@ graph TD
     end
     
     %% Styling
-    classDef pipeline fill:#98fb98,stroke:#333,stroke-width:2px;
+    classDef pipeline fill:#2c2c2c,stroke:#333333,stroke-width:2px,color:#ffffff;
     class Graph_Download_Process pipeline;
 ```
 
@@ -928,6 +928,6 @@ graph TD
     end
     
     %% Styling
-    classDef backend fill:#ffe4e1,stroke:#333,stroke-width:2px;
+    classDef backend fill:#1e1e1e,stroke:#333333,stroke-width:2px,color:#ffffff;
     class Backend_Modules backend;
 ```
