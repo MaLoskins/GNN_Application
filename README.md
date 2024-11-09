@@ -7,20 +7,13 @@ An advanced web application that transforms CSV data into interactive graph visu
 - [CSV to Graph Application](#csv-to-graph-application)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
-  - [Pipeline](#pipeline)
-    - [Frontend Section](#frontend-section)
-    - [Backend Section](#backend-section)
-    - [Graph Construction Pipeline](#graph-construction-pipeline)
-    - [Feature Space Creation Pipeline](#feature-space-creation-pipeline)
-    - [Graph Download Process](#graph-download-process)
-    - [Backend Modules](#backend-modules)
   - [Features](#features)
   - [Architecture](#architecture)
     - [Frontend](#frontend)
     - [Backend](#backend)
   - [Data Processing Pipelines](#data-processing-pipelines)
-    - [Graph Construction Pipeline](#graph-construction-pipeline-1)
-    - [Feature Space Creation Pipeline](#feature-space-creation-pipeline-1)
+    - [Graph Construction Pipeline](#graph-construction-pipeline)
+    - [Feature Space Creation Pipeline](#feature-space-creation-pipeline)
   - [Installation](#installation)
     - [Backend Setup](#backend-setup)
     - [Frontend Setup](#frontend-setup)
@@ -46,206 +39,19 @@ An advanced web application that transforms CSV data into interactive graph visu
     - [Important Classes and Functions](#important-classes-and-functions)
     - [Error Handling](#error-handling)
     - [Performance Considerations](#performance-considerations)
-  - [Contact](#contact)
-  - [Acknowledgments](#acknowledgments)
+  - [Pipeline](#pipeline)
+    - [Frontend Section](#frontend-section)
+    - [Backend Section](#backend-section)
+    - [Graph Construction Pipeline](#graph-construction-pipeline-1)
+    - [Feature Space Creation Pipeline](#feature-space-creation-pipeline-1)
+    - [Graph Download Process](#graph-download-process)
+    - [Backend Modules](#backend-modules)
 
 ---
 
 ## Introduction
 
 This application is designed for data scientists and developers who need to convert CSV data into graph structures for analysis and visualization. By leveraging modern NLP and graph processing libraries, it provides a flexible platform for exploring relationships within data.
-
-
-
-## Pipeline
-
-
-### Frontend Section
-
-```mermaid
-graph TD
-    %% Frontend Section
-    subgraph Frontend [Frontend]
-        A[User Interface] --> B[FileUploader]
-        A --> C[ConfigurationPanel]
-        A --> D[FeatureSpaceCreatorTab]
-        A --> E[GraphVisualizer]
-        A --> F[Sidebar]
-        
-        %% FileUploader Components
-        B --> B1[Drag & Drop Area]
-        B --> B2[File Selector]
-        B1 --> |Parse CSV with Papa Parse| B3[Parsed Data & Columns]
-        B2 --> |Parse CSV with Papa Parse| B3
-        
-        %% ConfigurationPanel Components
-        C --> C1[Node Selection]
-        C --> C2[Relationship Selection]
-        C1 --> C3[NodeEditModal]
-        C2 --> C4[RelationshipModal]
-        C3 --> C5[Update Node Config]
-        C4 --> C5
-        
-        %% FeatureSpaceCreatorTab Components
-        D --> D1[Add Text Feature]
-        D --> D2[Add Numeric Feature]
-        D1 --> D3[Configure Embedding Method]
-        D2 --> D4[Configure Processing Method]
-        D3 --> D5[Select Dimensionality Reduction]
-        D4 --> D5
-        D5 --> D6[Feature Space Configuration]
-        
-        %% GraphVisualizer Components
-        E --> E1[ForceGraph2D Rendering]
-        E --> E2[Zoom & Pan Controls]
-        E --> E3[Tooltip Display]
-        
-        %% Sidebar Components
-        F --> F1[Download Format Selection]
-        F --> F2[Download Button]
-        
-        %% State Management
-        A --> G[useGraph Hook]
-        G --> G1[csvData State]
-        G --> G2[config State]
-        G --> G3[featureSpaceData State]
-        G --> G4[graphData State]
-    end
-    
-    %% Styling
-    classDef frontend fill:#f0f8ff,stroke:#333,stroke-width:2px;
-    class Frontend frontend;
-```
-
-### Backend Section
-
-```mermaid
-graph TD
-    %% Backend Section
-    subgraph Backend [Backend]
-        K[FastAPI Server] --> L[API Endpoints]
-        L --> M[process_data]
-        L --> N[create_feature_space]
-        L --> O[download_graph]
-        L --> P[health_check]
-        
-        %% API Endpoint Processes
-        M --> P_GraphConstruction[Graph Construction Pipeline]
-        N --> P_FeatureSpaceCreation[Feature Space Creation Pipeline]
-        O --> P_GraphDownload[Graph Download Process]
-        P --> Q[Health Check Response]
-    end
-    
-    %% Styling
-    classDef backend fill:#e0ffff,stroke:#333,stroke-width:2px;
-    class Backend backend;
-```
-
-### Graph Construction Pipeline
-
-```mermaid
-graph TD
-    %% Graph Construction Pipeline
-    subgraph Graph_Construction_Pipeline [Graph Construction Pipeline]
-        PC1[CSV Data Parsing]
-        PC1 --> PC2[Pandas DataFrame Creation]
-        PC2 --> PC3[Configuration Validation]
-        PC3 --> PC4[Graph Initialization]
-        PC4 --> PC5[Add Nodes]
-        PC4 --> PC6[Add Edges]
-        PC5 --> PC7[Extract & Attach Features]
-        PC6 --> PC7
-        PC7 --> PC8[Graph Serialization]
-        PC8 --> PC9[Send Serialized Graph to Frontend]
-    end
-    
-    %% Styling
-    classDef pipeline fill:#dcdcdc,stroke:#333,stroke-width:2px;
-    class Graph_Construction_Pipeline pipeline;
-```
-
-### Feature Space Creation Pipeline
-
-```mermaid
-graph TD
-    %% Feature Space Creation Pipeline
-    subgraph Feature_Space_Creation_Pipeline [Feature Space Creation Pipeline]
-        FC1[Feature Configuration Parsing]
-        FC1 --> FC2[Text Feature Processing]
-        FC1 --> FC3[Numeric Feature Processing]
-        
-        %% Text Feature Processing
-        subgraph Text_Feature_Processing [Text Feature Processing]
-            FC2 --> FC2_1[Text Preprocessing]
-            FC2_1 --> FC2_2[Tokenization]
-            FC2_2 --> FC2_3[Stopwords Removal]
-            FC2_3 --> FC2_4[Special Characters Handling]
-            FC2_4 --> FC2_5[Embedding Generation]
-            FC2_5 --> FC2_6[Select Embedding Method]
-            FC2_6 --> FC2_7[BERT Embeddings]
-            FC2_6 --> FC2_8[GloVe Embeddings]
-            FC2_6 --> FC2_9[Word2Vec Embeddings]
-        end
-        
-        %% Numeric Feature Processing
-        subgraph Numeric_Feature_Processing [Numeric Feature Processing]
-            FC3 --> FC3_1[Data Type Conversion]
-            FC3_1 --> FC3_2[Missing Value Imputation]
-            FC3_2 --> FC3_3[Scaling]
-        end
-        
-        %% Continue Feature Space Creation Pipeline
-        FC2_7 --> FC4[Dimensionality Reduction]
-        FC2_8 --> FC4
-        FC2_9 --> FC4
-        FC4 --> FC5[Apply PCA/UMAP]
-        FC5 --> FC6[Combine Text & Numeric Features]
-        FC6 --> FC7[Feature Aggregation]
-        FC7 --> FC8[Feature Space Serialization]
-        FC8 --> FC9[Send Feature Space Data to Frontend]
-    end
-    
-    %% Styling
-    classDef pipeline fill:#fafad2,stroke:#333,stroke-width:2px;
-    class Feature_Space_Creation_Pipeline pipeline;
-```
-
-### Graph Download Process
-
-```mermaid
-graph TD
-    %% Graph Download Process
-    subgraph Graph_Download_Process [Graph Download Process]
-        GD1[Receive Download Request]
-        GD1 --> GD2[Process Graph Data]
-        GD2 --> GD3[Convert to Specified Format]
-        GD3 --> GD4[Send File to Frontend]
-    end
-    
-    %% Styling
-    classDef pipeline fill:#98fb98,stroke:#333,stroke-width:2px;
-    class Graph_Download_Process pipeline;
-```
-
-### Backend Modules
-
-```mermaid
-graph TD
-    %% Additional Backend Modules
-    subgraph Backend_Modules [Backend Modules]
-        DataFrameToGraph[DataFrameToGraph.py] --> ValidateConfig[validate_config]
-        DataFrameToGraph --> ParseDataFrame[parse_dataframe]
-        DataFrameToGraph --> AddNode[add_node]
-        DataFrameToGraph --> AddEdge[add_edge]
-        FeatureSpaceCreator[FeatureSpaceCreator.py] --> TextPreprocessor[TextPreprocessor]
-        FeatureSpaceCreator --> EmbeddingCreator[EmbeddingCreator]
-        FeatureSpaceCreator --> FeatureAggregator[FeatureAggregatorSimple]
-    end
-    
-    %% Styling
-    classDef backend fill:#ffe4e1,stroke:#333,stroke-width:2px;
-    class Backend_Modules backend;
-```
 
 ## Features
 
@@ -355,7 +161,7 @@ graph TD
 2. **Create a Virtual Environment**
 
    ```bash
-   python3 -m venv venv
+   python3 -m venv venv # On Windows use `python -m venv venv`
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
 
@@ -679,17 +485,192 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## Contact
+## Pipeline
 
-For questions, issues, or suggestions, please open an issue on the [GitHub repository](https://github.com/yourusername/csv-to-graph) or contact [your-email@example.com](mailto:your-email@example.com).
 
----
+### Frontend Section
 
-## Acknowledgments
+```mermaid
+graph TD
+    %% Frontend Section
+    subgraph Frontend [Frontend]
+        A[User Interface] --> B[FileUploader]
+        A --> C[ConfigurationPanel]
+        A --> D[FeatureSpaceCreatorTab]
+        A --> E[GraphVisualizer]
+        A --> F[Sidebar]
+        
+        %% FileUploader Components
+        B --> B1[Drag & Drop Area]
+        B --> B2[File Selector]
+        B1 --> |Parse CSV with Papa Parse| B3[Parsed Data & Columns]
+        B2 --> |Parse CSV with Papa Parse| B3
+        
+        %% ConfigurationPanel Components
+        C --> C1[Node Selection]
+        C --> C2[Relationship Selection]
+        C1 --> C3[NodeEditModal]
+        C2 --> C4[RelationshipModal]
+        C3 --> C5[Update Node Config]
+        C4 --> C5
+        
+        %% FeatureSpaceCreatorTab Components
+        D --> D1[Add Text Feature]
+        D --> D2[Add Numeric Feature]
+        D1 --> D3[Configure Embedding Method]
+        D2 --> D4[Configure Processing Method]
+        D3 --> D5[Select Dimensionality Reduction]
+        D4 --> D5
+        D5 --> D6[Feature Space Configuration]
+        
+        %% GraphVisualizer Components
+        E --> E1[ForceGraph2D Rendering]
+        E --> E2[Zoom & Pan Controls]
+        E --> E3[Tooltip Display]
+        
+        %% Sidebar Components
+        F --> F1[Download Format Selection]
+        F --> F2[Download Button]
+        
+        %% State Management
+        A --> G[useGraph Hook]
+        G --> G1[csvData State]
+        G --> G2[config State]
+        G --> G3[featureSpaceData State]
+        G --> G4[graphData State]
+    end
+    
+    %% Styling
+    classDef frontend fill:#f0f8ff,stroke:#333,stroke-width:2px;
+    class Frontend frontend;
+```
 
-- The developers of open-source libraries used in this project.
-- The community contributors who have provided valuable feedback.
+### Backend Section
 
----
+```mermaid
+graph TD
+    %% Backend Section
+    subgraph Backend [Backend]
+        K[FastAPI Server] --> L[API Endpoints]
+        L --> M[process_data]
+        L --> N[create_feature_space]
+        L --> O[download_graph]
+        L --> P[health_check]
+        
+        %% API Endpoint Processes
+        M --> P_GraphConstruction[Graph Construction Pipeline]
+        N --> P_FeatureSpaceCreation[Feature Space Creation Pipeline]
+        O --> P_GraphDownload[Graph Download Process]
+        P --> Q[Health Check Response]
+    end
+    
+    %% Styling
+    classDef backend fill:#e0ffff,stroke:#333,stroke-width:2px;
+    class Backend backend;
+```
 
-Feel free to customize and extend this application to suit your needs!
+### Graph Construction Pipeline
+
+```mermaid
+graph TD
+    %% Graph Construction Pipeline
+    subgraph Graph_Construction_Pipeline [Graph Construction Pipeline]
+        PC1[CSV Data Parsing]
+        PC1 --> PC2[Pandas DataFrame Creation]
+        PC2 --> PC3[Configuration Validation]
+        PC3 --> PC4[Graph Initialization]
+        PC4 --> PC5[Add Nodes]
+        PC4 --> PC6[Add Edges]
+        PC5 --> PC7[Extract & Attach Features]
+        PC6 --> PC7
+        PC7 --> PC8[Graph Serialization]
+        PC8 --> PC9[Send Serialized Graph to Frontend]
+    end
+    
+    %% Styling
+    classDef pipeline fill:#dcdcdc,stroke:#333,stroke-width:2px;
+    class Graph_Construction_Pipeline pipeline;
+```
+
+### Feature Space Creation Pipeline
+
+```mermaid
+graph TD
+    %% Feature Space Creation Pipeline
+    subgraph Feature_Space_Creation_Pipeline [Feature Space Creation Pipeline]
+        FC1[Feature Configuration Parsing]
+        FC1 --> FC2[Text Feature Processing]
+        FC1 --> FC3[Numeric Feature Processing]
+        
+        %% Text Feature Processing
+        subgraph Text_Feature_Processing [Text Feature Processing]
+            FC2 --> FC2_1[Text Preprocessing]
+            FC2_1 --> FC2_2[Tokenization]
+            FC2_2 --> FC2_3[Stopwords Removal]
+            FC2_3 --> FC2_4[Special Characters Handling]
+            FC2_4 --> FC2_5[Embedding Generation]
+            FC2_5 --> FC2_6[Select Embedding Method]
+            FC2_6 --> FC2_7[BERT Embeddings]
+            FC2_6 --> FC2_8[GloVe Embeddings]
+            FC2_6 --> FC2_9[Word2Vec Embeddings]
+        end
+        
+        %% Numeric Feature Processing
+        subgraph Numeric_Feature_Processing [Numeric Feature Processing]
+            FC3 --> FC3_1[Data Type Conversion]
+            FC3_1 --> FC3_2[Missing Value Imputation]
+            FC3_2 --> FC3_3[Scaling]
+        end
+        
+        %% Continue Feature Space Creation Pipeline
+        FC2_7 --> FC4[Dimensionality Reduction]
+        FC2_8 --> FC4
+        FC2_9 --> FC4
+        FC4 --> FC5[Apply PCA/UMAP]
+        FC5 --> FC6[Combine Text & Numeric Features]
+        FC6 --> FC7[Feature Aggregation]
+        FC7 --> FC8[Feature Space Serialization]
+        FC8 --> FC9[Send Feature Space Data to Frontend]
+    end
+    
+    %% Styling
+    classDef pipeline fill:#fafad2,stroke:#333,stroke-width:2px;
+    class Feature_Space_Creation_Pipeline pipeline;
+```
+
+### Graph Download Process
+
+```mermaid
+graph TD
+    %% Graph Download Process
+    subgraph Graph_Download_Process [Graph Download Process]
+        GD1[Receive Download Request]
+        GD1 --> GD2[Process Graph Data]
+        GD2 --> GD3[Convert to Specified Format]
+        GD3 --> GD4[Send File to Frontend]
+    end
+    
+    %% Styling
+    classDef pipeline fill:#98fb98,stroke:#333,stroke-width:2px;
+    class Graph_Download_Process pipeline;
+```
+
+### Backend Modules
+
+```mermaid
+graph TD
+    %% Additional Backend Modules
+    subgraph Backend_Modules [Backend Modules]
+        DataFrameToGraph[DataFrameToGraph.py] --> ValidateConfig[validate_config]
+        DataFrameToGraph --> ParseDataFrame[parse_dataframe]
+        DataFrameToGraph --> AddNode[add_node]
+        DataFrameToGraph --> AddEdge[add_edge]
+        FeatureSpaceCreator[FeatureSpaceCreator.py] --> TextPreprocessor[TextPreprocessor]
+        FeatureSpaceCreator --> EmbeddingCreator[EmbeddingCreator]
+        FeatureSpaceCreator --> FeatureAggregator[FeatureAggregatorSimple]
+    end
+    
+    %% Styling
+    classDef backend fill:#ffe4e1,stroke:#333,stroke-width:2px;
+    class Backend_Modules backend;
+```
