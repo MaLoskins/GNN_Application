@@ -26,9 +26,6 @@ An advanced web application that transforms CSV data into interactive graph visu
     - [Downloading the Graph](#downloading-the-graph)
   - [API Endpoints](#api-endpoints)
   - [Project Structure](#project-structure)
-  - [Dependencies](#dependencies)
-    - [Backend](#backend-1)
-    - [Frontend](#frontend-1)
   - [Development and Debugging](#development-and-debugging)
     - [Testing the Pipelines](#testing-the-pipelines)
   - [Contributing](#contributing)
@@ -309,32 +306,11 @@ csv-to-graph/
 
 ---
 
-## Dependencies
 
-### Backend
-
-- **FastAPI**
-- **Uvicorn**
-- **Pandas**
-- **NetworkX**
-- **PyTorch**
-- **Transformers**
-- **Gensim**
-- **TorchText**
-- **spaCy**
-- **UMAP-learn**
-- **Scikit-learn**
-
-### Frontend
-
-- **React**
-- **React Flow Renderer**
-- **React Dropzone**
-- **React Modal**
-- **React Force Graph**
-- **Papa Parse**
-- **Axios**
-- **React Icons**
+| Category   | Dependencies                                                                 |
+|------------|------------------------------------------------------------------------------|
+| **Backend**  | FastAPI, Uvicorn, Pandas, NetworkX, PyTorch, Transformers, Gensim, TorchText, spaCy, UMAP-learn, Scikit-learn |
+| **Frontend** | React, React Flow Renderer, React Dropzone, React Modal, React Force Graph, Papa Parse, Axios, React Icons  |
 
 ---
 
