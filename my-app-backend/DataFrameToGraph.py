@@ -1,4 +1,4 @@
-# Tabular_to_Graph.py
+# DataFrameToGraph.py
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -239,13 +239,15 @@ class DataFrameToGraph:
         else:
             return data
 
-    def graph_visual(self, graph: nx.Graph):
+    def graph_visual(self):
         """
         Visualizes the NetworkX graph with dynamic node and edge types.
 
         Parameters:
         - graph (nx.Graph): The NetworkX graph to visualize.
         """
+        graph = self.graph
+        
         # Extract unique node types
         node_types = set(data.get('type', 'default') for _, data in graph.nodes(data=True))
         node_type_list = sorted(node_types)  # Sort for consistency
@@ -377,7 +379,7 @@ def main():
     # --------------------------------
 
     # Visualize the graph
-    df_to_graph.graph_visual(graph)
+    df_to_graph.graph_visual()
 
 
 
