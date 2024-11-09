@@ -162,7 +162,7 @@ class DataFrameToGraph:
                 features[feat] = ""
         return features
 
-    def _add_node(self, node_id: str, node_type: Optional[str], features: Dict[str, Any]):
+    def _add_node(self, node_id: str, node_type: str, features: Dict[str, Any]):
         """
         Adds a node to the graph or updates its features if it already exists.
 
@@ -171,8 +171,6 @@ class DataFrameToGraph:
         - node_type (str): Type/category of the node.
         - features (Dict[str, Any]): Features to assign to the node.
         """
-        node_type = node_type or 'default'  # Set default node type if None
-
         if node_id not in self.node_registry:
             self.node_registry[node_id] = {'type': node_type, 'features': features}
             self.graph.add_node(node_id, type=node_type, **features)
