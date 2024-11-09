@@ -24,6 +24,24 @@ An advanced web application that transforms CSV data into interactive graph visu
     - [Creating Feature Spaces](#creating-feature-spaces)
     - [Visualizing the Graph](#visualizing-the-graph)
     - [Downloading the Graph](#downloading-the-graph)
+  - [Using the Application with the React Framework](#using-the-application-with-the-react-framework)
+    - [Prerequisites](#prerequisites)
+    - [Folder Structure Overview](#folder-structure-overview)
+    - [Key Components and Their Roles](#key-components-and-their-roles)
+    - [Setting Up the React Frontend](#setting-up-the-react-frontend)
+    - [Utilizing Key React Components](#utilizing-key-react-components)
+      - [1. **FileUploader**](#1-fileuploader)
+      - [2. **ConfigurationPanel**](#2-configurationpanel)
+      - [3. **FeatureSpaceCreatorTab**](#3-featurespacecreatortab)
+      - [4. **GraphVisualizer**](#4-graphvisualizer)
+      - [5. **Sidebar**](#5-sidebar)
+    - [Managing State with `useGraph` Hook](#managing-state-with-usegraph-hook)
+    - [Interacting with the Backend API](#interacting-with-the-backend-api)
+    - [Extending the React Frontend](#extending-the-react-frontend)
+    - [Best Practices](#best-practices)
+    - [Troubleshooting](#troubleshooting)
+    - [Building for Production](#building-for-production)
+    - [Contributing to the React Frontend](#contributing-to-the-react-frontend)
   - [API Endpoints](#api-endpoints)
   - [Project Structure](#project-structure)
   - [Development and Debugging](#development-and-debugging)
@@ -151,8 +169,8 @@ This application is designed for data scientists and developers who need to conv
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/csv-to-graph.git
-   cd csv-to-graph/my-app-backend
+   git clone https://github.com/MaLoskins/GNN_Application.git
+   cd GNN_Application/my-app-backend
    ```
 
 2. **Create a Virtual Environment**
@@ -253,6 +271,271 @@ This application is designed for data scientists and developers who need to conv
 
 ---
 
+## Using the Application with the React Framework
+
+This section provides a comprehensive guide on how to utilize and extend the frontend of the **CSV to Graph Application** built with the **React** framework. Whether you're a developer looking to customize the user interface or integrate additional features, this guide will help you navigate the React components and structure effectively.
+
+### Prerequisites
+
+- **Node.js** (v14 or later)
+- **npm** (v6 or later) or **yarn**
+- Basic knowledge of **React** and **JavaScript**
+
+### Folder Structure Overview
+
+Understanding the folder structure is crucial for efficient development and maintenance. Here's a brief overview of the **`my-app`** directory:
+
+```
+my-app/
+├── src/
+│   ├── components/
+│   │   ├── ConfigurationPanel/
+│   │   ├── FeatureSpaceCreatorTab/
+│   │   ├── FileUploader/
+│   │   ├── GraphVisualizer/
+│   │   ├── NodeEditModal/
+│   │   ├── ReactFlowWrapper/
+│   │   ├── RelationshipModal/
+│   │   └── Sidebar/
+│   ├── hooks/
+│   │   └── useGraph.js
+│   ├── utils/
+│   │   └── validation.js
+│   ├── api.js
+│   ├── App.js
+│   └── index.js
+├── public/
+├── package.json
+└── ...
+```
+
+### Key Components and Their Roles
+
+- **`components/`**: Contains all React components used in the application.
+  - **`ConfigurationPanel/`**: Manages the configuration of nodes and relationships.
+  - **`FeatureSpaceCreatorTab/`**: Handles the creation and configuration of feature spaces.
+  - **`FileUploader/`**: Facilitates CSV file uploads.
+  - **`GraphVisualizer/`**: Renders the interactive graph visualization.
+  - **`NodeEditModal/`**: Modal for editing node properties.
+  - **`ReactFlowWrapper/`**: Integrates React Flow for interactive graph configuration.
+  - **`RelationshipModal/`**: Modal for defining relationships between nodes.
+  - **`Sidebar/`**: Provides options for downloading the graph and other sidebar functionalities.
+  
+- **`hooks/`**:
+  - **`useGraph.js`**: Custom React hook for managing graph-related state and logic.
+  
+- **`utils/`**:
+  - **`validation.js`**: Utility functions for validating user inputs and configurations.
+  
+- **`api.js`**: Handles API interactions with the backend using Axios.
+  
+- **`App.js`**: The root component that assembles all other components.
+  
+- **`index.js`**: Entry point for the React application.
+
+### Setting Up the React Frontend
+
+Follow these steps to set up and run the React frontend of the application:
+
+1. **Navigate to the Frontend Directory**
+
+   ```bash
+   cd my-app
+   ```
+
+2. **Install Node Dependencies**
+
+   Ensure you have all the necessary packages installed. You can use either `npm` or `yarn`.
+
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Start the Development Server**
+
+   Launch the React development server to run the application locally.
+
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
+
+   The application should now be accessible at `http://localhost:3000`.
+
+### Utilizing Key React Components
+
+Below are descriptions and usage guidelines for some of the key React components in the application:
+
+#### 1. **FileUploader**
+
+- **Path**: `src/components/FileUploader/FileUploader.js`
+- **Purpose**: Allows users to upload CSV files via drag-and-drop or file selection.
+- **Props**:
+  - `onFileUpload`: Callback function triggered after a successful file upload and parsing.
+
+#### 2. **ConfigurationPanel**
+
+- **Path**: `src/components/ConfigurationPanel/ConfigurationPanel.js`
+- **Purpose**: Enables users to configure nodes and relationships based on the uploaded CSV data.
+- **Props**:
+  - `config`: Current configuration state.
+  - `setConfig`: Function to update the configuration state.
+
+#### 3. **FeatureSpaceCreatorTab**
+
+- **Path**: `src/components/FeatureSpaceCreatorTab/FeatureSpaceCreatorTab.js`
+- **Purpose**: Facilitates the creation and configuration of feature spaces using various embedding techniques.
+- **Props**:
+  - `featureSpace`: Current feature space configuration.
+  - `setFeatureSpace`: Function to update the feature space configuration.
+
+#### 4. **GraphVisualizer**
+
+- **Path**: `src/components/GraphVisualizer/GraphVisualizer.js`
+- **Purpose**: Renders the interactive graph using **React Force Graph**.
+- **Props**:
+  - `graphData`: The serialized graph data to visualize.
+
+#### 5. **Sidebar**
+
+- **Path**: `src/components/Sidebar/Sidebar.js`
+- **Purpose**: Provides options for downloading the graph and other sidebar functionalities.
+- **Props**:
+  - `onDownload`: Callback function triggered when the user initiates a graph download.
+
+### Managing State with `useGraph` Hook
+
+The `useGraph` custom hook centralizes the state management for graph-related data and configurations.
+
+- **Path**: `src/hooks/useGraph.js`
+- **Features**:
+  - Manages states such as `csvData`, `config`, `featureSpaceData`, and `graphData`.
+  - Provides handler functions for file uploads, node selections, submissions, and feature space configurations.
+
+### Interacting with the Backend API
+
+All API interactions are managed through the **`api.js`** file using **Axios**.
+
+- **Path**: `src/api.js`
+- **Functions**:
+  - `processData`: Sends CSV data and configurations to the backend for graph processing.
+  - `createFeatureSpace`: Sends feature configurations to generate the feature space.
+  - `downloadGraph`: Requests the backend to generate and download the graph in the desired format.
+
+### Extending the React Frontend
+
+To add new features or modify existing ones, follow these guidelines:
+
+1. **Creating New Components**
+
+   - **Location**: `src/components/YourNewComponent/YourNewComponent.js`
+   - **Example**:
+   - **Styles**: Create a corresponding CSS file `YourNewComponent.css` for styling.
+
+2. **Updating State Management**
+
+   - Modify the `useGraph` hook if the new component requires managing additional state or handling new actions.
+
+3. **Integrating with Existing Components**
+
+   - Import and use the new component within `App.js` or other existing components as needed.
+
+4. **API Integration**
+
+   - If the new component requires additional backend interactions, update `api.js` with new API functions and ensure the backend has corresponding endpoints.
+
+### Best Practices
+
+- **Component Reusability**: Design components to be reusable and modular to facilitate maintenance and scalability.
+- **State Management**: Utilize React hooks effectively to manage state and side effects. Keep the `useGraph` hook organized to handle complex state logic.
+- **Styling**: Maintain consistent styling using CSS modules or styled-components to ensure a uniform look and feel across the application.
+- **Error Handling**: Implement robust error handling in components to provide meaningful feedback to users and simplify debugging.
+- **Documentation**: Comment your code and update the README as you add new features to help other developers understand your changes.
+
+### Troubleshooting
+
+- **Common Issues**:
+  - **Dependency Errors**: Ensure all required dependencies are installed. Run `npm install` or `yarn install` if you encounter missing packages.
+  - **Port Conflicts**: If `localhost:3000` is in use, specify a different port when starting the development server:
+    ```bash
+    PORT=3001 npm start
+    # or on Windows
+    set PORT=3001 && npm start
+    ```
+  - **API Connectivity**: Verify that the backend server is running and accessible. Check proxy settings in `package.json` if necessary.
+
+- **Debugging Tips**:
+  - Use **React Developer Tools** in your browser to inspect component hierarchies and state.
+  - Check the browser console for any runtime errors or warnings.
+  - Utilize **VS Code** or your preferred IDE's debugging features to set breakpoints and step through code.
+
+### Building for Production
+
+To create an optimized production build of the React frontend:
+
+1. **Navigate to the Frontend Directory**
+
+   ```bash
+   cd my-app
+   ```
+
+2. **Build the Application**
+
+   ```bash
+   npm run build
+   # or
+   yarn build
+   ```
+
+   This will generate a `build/` directory containing the optimized production files.
+
+3. **Serve the Build**
+
+   You can serve the build using a static server or integrate it with your backend deployment.
+
+   ```bash
+   npm install -g serve
+   serve -s build
+   ```
+
+   The application will be available at `http://localhost:5000` by default.
+
+### Contributing to the React Frontend
+
+If you wish to contribute to the frontend development:
+
+1. **Fork the Repository**
+
+   ```bash
+   git clone https://github.com/MaLoskins/GNN_Application.git
+   cd GNN_Application/my-app
+   ```
+
+2. **Create a New Branch**
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make Your Changes**
+
+   Implement your feature or fix in the appropriate components or hooks.
+
+4. **Commit and Push**
+
+   ```bash
+   git add .
+   git commit -m "Add feature XYZ"
+   git push origin feature/your-feature-name
+   ```
+
+5. **Open a Pull Request**
+
+   Navigate to the repository on GitHub and open a pull request for your branch.
+
 ## API Endpoints
 
 - **GET `/`**
@@ -272,7 +555,7 @@ This application is designed for data scientists and developers who need to conv
 ## Project Structure
 
 ```
-csv-to-graph/
+GNN_Application/
 ├── my-app/
 │   ├── src/
 │   │   ├── components/
@@ -305,7 +588,6 @@ csv-to-graph/
 ```
 
 ---
-
 
 | Category   | Dependencies                                                                 |
 |------------|------------------------------------------------------------------------------|
@@ -342,8 +624,8 @@ csv-to-graph/
 1. **Fork the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/csv-to-graph.git
-   cd csv-to-graph
+   git clone https://github.com/MaLoskins/GNN_Application.git
+   cd GNN_Application
    ```
 
 2. **Create a New Branch**
@@ -462,7 +744,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ## Pipeline
-
 
 ### Frontend Section
 
