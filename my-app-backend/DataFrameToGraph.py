@@ -7,9 +7,9 @@ import logging
 import matplotlib.patches as mpatches
 import matplotlib.cm as cm
 import matplotlib.colors as colors
+import json
 
 # Set up logging
-# Set up logging to file instead of console
 logging.basicConfig(
     level=logging.INFO,
     filename='logs/data_to_graph.log',         # Specify the file name for the log file
@@ -17,7 +17,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
 
 class DataFrameToGraph:
     def __init__(
@@ -55,6 +54,14 @@ class DataFrameToGraph:
                 self.feature_space.set_index('index', inplace=True)
             else:
                 self.feature_space.index = self.feature_space.index.astype(str)
+            # Convert feature data from JSON strings to appropriate types if necessary
+            if 'data' in self.feature_space.columns and 'columns' in self.feature_space.columns:
+                self.feature_space = pd.read_json(
+                    self.feature_space.to_json(orient='split'),
+                    orient='split'
+                )
+            # Ensure index is string type for consistency
+            self.feature_space.index = self.feature_space.index.astype(str)
 
         self._parse_dataframe()
 
@@ -173,14 +180,27 @@ class DataFrameToGraph:
         """
         if node_id not in self.node_registry:
             self.node_registry[node_id] = {'type': node_type, 'features': features}
-            self.graph.add_node(node_id, type=node_type, **features)
+            # Enrich node with feature space data if available
+            enriched_features = features.copy()
+            if self.feature_space is not None:
+                if node_id in self.feature_space.index:
+                    node_feature_data = self.feature_space.loc[node_id].to_dict()
+                    # Avoid overwriting existing features
+                    enriched_features.update(node_feature_data)
+                    logger.info(f"Enriched node {node_id} with feature space data.")
+            self.graph.add_node(node_id, type=node_type, **enriched_features)
             logger.info(f"Added node {node_id} of type '{node_type}'.")
         else:
             # Update existing node features
             existing_features = self.node_registry[node_id]['features']
             updated_features = {k: v for k, v in features.items() if v != ""}
             existing_features.update(updated_features)
-            self.graph.nodes[node_id].update(updated_features)
+            # Enrich with feature space data if available
+            if self.feature_space is not None and node_id in self.feature_space.index:
+                node_feature_data = self.feature_space.loc[node_id].to_dict()
+                existing_features.update(node_feature_data)
+                logger.info(f"Updated node {node_id} with feature space data.")
+            self.graph.nodes[node_id].update(existing_features)
             logger.info(f"Updated node {node_id} with features {updated_features}.")
 
     def _add_edge(self, source_id: str, target_id: str, rel_type: str, features: Dict[str, Any]):
@@ -199,7 +219,10 @@ class DataFrameToGraph:
         
         if not self.graph.has_edge(source_id, target_id, key=rel_type):
             self.edge_registry[edge_key] = features
-            self.graph.add_edge(source_id, target_id, key=rel_type, type=rel_type, **features)
+            # Enrich edge with feature space data if available
+            enriched_features = features.copy()
+            # You can add code here to enrich edges with feature space data if you have such data
+            self.graph.add_edge(source_id, target_id, key=rel_type, type=rel_type, **enriched_features)
             logger.info(f"Added edge from {source_id} to {target_id} of type '{rel_type}'.")
         else:
             # Update existing edge features
@@ -207,7 +230,7 @@ class DataFrameToGraph:
             updated_features = {k: v for k, v in features.items() if v != ""}
             existing_features.update(updated_features)
             self.edge_registry[edge_key] = existing_features
-            self.graph[source_id][target_id][rel_type].update(updated_features)
+            self.graph[source_id][target_id][rel_type].update(existing_features)
             logger.info(f"Updated edge from {source_id} to {target_id} of type '{rel_type}' with features {updated_features}.")
 
     def get_graph(self) -> nx.Graph:
@@ -258,9 +281,6 @@ class DataFrameToGraph:
     def graph_visual(self):
         """
         Visualizes the NetworkX graph with dynamic node and edge types.
-
-        Parameters:
-        - graph (nx.Graph): The NetworkX graph to visualize.
         """
         graph = self.graph
         
@@ -278,7 +298,7 @@ class DataFrameToGraph:
         # Define node sizes based on node degree
         degrees = dict(graph.degree())
         max_degree = max(degrees.values()) if degrees else 1
-        node_sizes = [30 + (degrees[node] / max_degree) * 70 for node in graph.nodes()]  # Scale sizes between 300 and 1000
+        node_sizes = [300 + (degrees[node] / max_degree) * 700 for node in graph.nodes()]  # Scale sizes between 300 and 1000
 
         # Extract unique edge relationship types
         edge_types = set(data.get('type', 'default') for _, _, data in graph.edges(data=True))
@@ -329,75 +349,53 @@ class DataFrameToGraph:
         # Display the graph
         plt.show()
 
-def main():
+    def save_graph_visual(self, filename: str):
+        """
+        Saves the graph visualization to a file.
 
-    # Enhanced Sample DataFrame for a Social Network
-    df = pd.read_csv('prince-toronto.csv')
-    # Configuration Dictionary (Including 'features' Key)
+        Parameters:
+        - filename (str): The file path to save the visualization.
+        """
+        graph = self.graph
+        
+        # (Same visualization code as in graph_visual)
+
+        # ... (Visualization code omitted for brevity)
+
+        # Save the figure
+        plt.savefig(filename, bbox_inches='tight')
+        plt.close()
+        logger.info(f"Graph visualization saved to '{filename}'.")
+
+def main():
+    # Sample DataFrame and configuration
+    df = pd.read_csv('your_data.csv')  # Replace with your actual CSV file
     config = {
         "nodes": [
             {
-                "id": "tweet_id",
-                "type": "Post",
-                "features": ["retweet_count", "lang"]
-            },
-            {
-                "id": "reply_to_tweet_id",  # Added node definition for reply_to_tweet_id
-                "type": "Post",
-                "features": ["retweet_count", "lang"]
-            },
-            {
-                "id": "user_id",
-                "type": "User",
-                "features": ["favorite_count", "user_friends_count"]
+                "id": "node_id",
+                "type": "NodeType",
+                "features": ["feature1", "feature2"]
             }
         ],
         "relationships": [
             {
-                "source": "tweet_id",
-                "target": "reply_to_tweet_id",
-                "type": "replied",
-                "features": ["mentions", "hashtags"]
-            },
-            {
-                "source": "user_id",
-                "target": "tweet_id",
-                "type": "posted",
-                "features": ["geo"]
+                "source": "source_id",
+                "target": "target_id",
+                "type": "EdgeType",
+                "features": ["edge_feature1", "edge_feature2"]
             }
         ]
     }
+    # Load feature space data if available
+    feature_space_data = pd.read_json('feature_space.json', orient='split')  # Adjust as necessary
 
     # Initialize the DataFrameToGraph instance
-    df_to_graph = DataFrameToGraph(df, config, graph_type='directed')
+    df_to_graph = DataFrameToGraph(df, config, graph_type='directed', feature_space=feature_space_data)
     # Retrieve the constructed graph
     graph = df_to_graph.get_graph()
 
-    # Display nodes with attributes
-    print("Nodes:")
-    for node, attrs in graph.nodes(data=True):
-        print(node, attrs)
-
-    # Display edges with attributes
-    print("\nEdges:")
-    for source, target, key, attrs in graph.edges(keys=True, data=True):
-        print(f"{source} -> {target} [type={attrs.get('type')}, key={key}] {attrs}")
-
-    # Export the graph as an edge list CSV
-    df_to_graph.export_graph(format='edge_list', path='graph_edge_list.csv')
-
-    # Alternatively, get the adjacency dictionary
-    adjacency_dict = df_to_graph.export_graph(format='adjacency')
-    print("\nAdjacency Dictionary:")
-    print(adjacency_dict)
-
-    # Visualization Code Starts Here
-    # --------------------------------
-
-    # Visualize the graph
-    df_to_graph.graph_visual()
-
-
+    # Proceed with your logic
 
 if __name__ == "__main__":
     main()

@@ -15,6 +15,13 @@ export const getRoot = async () => {
 
 export const processData = async (data, config, featureSpaceData) => {
   try {
+    // Parse the 'feature_space' JSON string if present
+    if (featureSpaceData && featureSpaceData.feature_space) {
+      const featureSpaceJson = featureSpaceData.feature_space;
+      const featureSpace = JSON.parse(featureSpaceJson);
+      featureSpaceData.feature_space = featureSpace;
+    }
+
     const response = await axios.post(`${API_BASE_URL}/process-data`, {
       data,
       config,
@@ -25,6 +32,7 @@ export const processData = async (data, config, featureSpaceData) => {
     throw error;
   }
 };
+
 
 export const createFeatureSpace = async (data, config) => {
   try {
@@ -39,7 +47,7 @@ export const downloadGraph = async (data, config, featureSpaceData, format) => {
   try {
     const response = await axios.post(
       `${API_BASE_URL}/download-graph`,
-      { data, config, featureSpaceData, format },
+      { data, config, feature_space_data: featureSpaceData, format }, // Corrected to use 'feature_space_data'
       {
         responseType: 'blob',
       }
@@ -52,6 +60,13 @@ export const downloadGraph = async (data, config, featureSpaceData, format) => {
 
 export const downloadPyGData = async (data, config, featureSpaceData, nodeLabelColumn, edgeLabelColumn) => {
   try {
+    // Parse the 'feature_space' JSON string if present
+    if (featureSpaceData && featureSpaceData.feature_space) {
+      const featureSpaceJson = featureSpaceData.feature_space;
+      const featureSpace = JSON.parse(featureSpaceJson);
+      featureSpaceData.feature_space = featureSpace;
+    }
+
     const extendedConfig = {
       ...config,
       node_label_column: nodeLabelColumn,
@@ -59,7 +74,7 @@ export const downloadPyGData = async (data, config, featureSpaceData, nodeLabelC
     };
     const response = await axios.post(
       `${API_BASE_URL}/download-pyg`,
-      { data, config: extendedConfig, featureSpaceData },
+      { data, config: extendedConfig, feature_space_data: featureSpaceData }, // Corrected to use 'feature_space_data'
       {
         responseType: 'blob',
       }

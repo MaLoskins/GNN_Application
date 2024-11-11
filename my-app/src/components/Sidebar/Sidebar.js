@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import './Sidebar.css';
-import { downloadGraph, downloadPyGData } from '../../api'; // Import downloadPyGData
+import { downloadGraph, downloadPyGData } from '../../api';
 import {
   FiChevronDown,
   FiChevronUp,
@@ -70,7 +70,8 @@ const Sidebar = ({ csvData, columns, config, graphData, featureSpaceData }) => {
       alert('Failed to download graph.');
     }
   };
-    // State for PyG modal
+
+  // State for PyG modal
   const [pygSectionOpen, setPygSectionOpen] = useState(false);
   const [nodeLabelColumn, setNodeLabelColumn] = useState('');
   const [edgeLabelColumn, setEdgeLabelColumn] = useState('');
@@ -326,53 +327,53 @@ const Sidebar = ({ csvData, columns, config, graphData, featureSpaceData }) => {
               </div>
             )}
           </div>
-        {/* PyTorch Geometric Data Section */}
-        <div className="sidebar-section">
-          <h3 onClick={() => setPygSectionOpen(!pygSectionOpen)}>
-            <FiPackage className="section-icon" />
-            PyTorch Geometric Data
-            {pygSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
-          </h3>
-          {pygSectionOpen && (
-            <div className="section-content">
-              <p>Select label columns (optional):</p>
-              <label>
-                Node Label Column:
-                <select
-                  value={nodeLabelColumn}
-                  onChange={(e) => setNodeLabelColumn(e.target.value)}
-                >
-                  <option value="">None</option>
-                  {columns.map((col) => (
-                    <option key={col} value={col}>
-                      {col}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Edge Label Column:
-                <select
-                  value={edgeLabelColumn}
-                  onChange={(e) => setEdgeLabelColumn(e.target.value)}
-                >
-                  <option value="">None</option>
-                  {columns.map((col) => (
-                    <option key={col} value={col}>
-                      {col}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button className="download-button" onClick={handleDownloadPyGData}>
-                <FiDownload className="button-icon" />
-                Download PyG Data
-              </button>
-            </div>
-          )}
+          {/* PyTorch Geometric Data Section */}
+          <div className="sidebar-section">
+            <h3 onClick={() => setPygSectionOpen(!pygSectionOpen)}>
+              <FiPackage className="section-icon" />
+              PyTorch Geometric Data
+              {pygSectionOpen ? <FiChevronUp /> : <FiChevronDown />}
+            </h3>
+            {pygSectionOpen && (
+              <div className="section-content">
+                <p>Select label columns (optional):</p>
+                <label>
+                  Node Label Column:
+                  <select
+                    value={nodeLabelColumn}
+                    onChange={(e) => setNodeLabelColumn(e.target.value)}
+                  >
+                    <option value="">None</option>
+                    {columns.map((col) => (
+                      <option key={col} value={col}>
+                        {col}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Edge Label Column:
+                  <select
+                    value={edgeLabelColumn}
+                    onChange={(e) => setEdgeLabelColumn(e.target.value)}
+                  >
+                    <option value="">None</option>
+                    {columns.map((col) => (
+                      <option key={col} value={col}>
+                        {col}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button className="download-button" onClick={handleDownloadPyGData}>
+                  <FiDownload className="button-icon" />
+                  Download PyG Data
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
 
       {/* Sidebar Toggle Button */}
       {!isSidebarOpen && (

@@ -39,10 +39,12 @@ class GraphDataToPyG:
 
             # Extract numerical and embedding features
             for key, value in attr.items():
+                if key == self.node_label_column:
+                    continue  # Skip label column from features
                 if isinstance(value, list):
-                    feature_values.extend(value)
+                    feature_values.extend([float(v) for v in value])
                 elif isinstance(value, (int, float)):
-                    feature_values.append(value)
+                    feature_values.append(float(value))
                 # Handle categorical/string features if needed
 
             node_features.append(feature_values)
@@ -54,10 +56,13 @@ class GraphDataToPyG:
                 node_labels.append(0)  # Default label if none provided
 
         # Ensure all node features have the same length
-        max_feature_length = max(len(f) for f in node_features)
-        for feature in node_features:
-            if len(feature) < max_feature_length:
-                feature.extend([0] * (max_feature_length - len(feature)))
+        if node_features:
+            max_feature_length = max(len(f) for f in node_features)
+            for feature in node_features:
+                if len(feature) < max_feature_length:
+                    feature.extend([0.0] * (max_feature_length - len(feature)))
+        else:
+            node_features = [[0.0]] * num_nodes  # Assign default features if none are present
 
         # Convert to torch tensors
         x = torch.tensor(node_features, dtype=torch.float)
@@ -78,10 +83,12 @@ class GraphDataToPyG:
 
             # Extract numerical and embedding features
             for key, value in attr.items():
+                if key == self.edge_label_column:
+                    continue  # Skip label column from features
                 if isinstance(value, list):
-                    feature_values.extend(value)
+                    feature_values.extend([float(v) for v in value])
                 elif isinstance(value, (int, float)):
-                    feature_values.append(value)
+                    feature_values.append(float(value))
                 # Handle categorical/string features if needed
 
             edge_features.append(feature_values)
@@ -97,7 +104,7 @@ class GraphDataToPyG:
             max_edge_feature_length = max(len(f) for f in edge_features)
             for feature in edge_features:
                 if len(feature) < max_edge_feature_length:
-                    feature.extend([0] * (max_edge_feature_length - len(feature)))
+                    feature.extend([0.0] * (max_edge_feature_length - len(feature)))
             edge_attr = torch.tensor(edge_features, dtype=torch.float)
         else:
             edge_attr = None
