@@ -10,6 +10,9 @@ my-app-backend/__pycache__/
 venv/
 .env
 
+#ignore cat_files.sh
+cat_files.sh
+
 # System files
 .DS_Store
 Thumbs.db

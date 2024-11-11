@@ -15,7 +15,6 @@ normalize_path() {
 root_directory=$(normalize_path "$1")
 shift
 
-
 ignore_dirs=("$@")
 
 ignore_params=()
@@ -28,8 +27,11 @@ if [ "${#ignore_dirs[@]}" -gt 0 ]; then
 fi
 
 # Find files with specific extensions and output to output.txt in the specified format
-find "$root_directory" -type f \( -name "*.js" -o -name "*.py" -o -name "*.css" \) "${ignore_params[@]}" | while IFS= read -r file; do
+find "$root_directory" -type f \( -name "*.js" -o -name "*.py" \) "${ignore_params[@]}" | while IFS= read -r file; do
   echo "$file:" >> output.txt
+  echo -e "\n" >> output.txt
+  echo '```' >> output.txt
   cat "$file" >> output.txt
+  echo '```' >> output.txt
   echo -e "\n\n" >> output.txt
 done
